@@ -9,6 +9,9 @@
 # testing
 /coverage
 
+# googleIA
+/scripts/aistudio.ts
+
 # next.js
 /.next/
 /out/
