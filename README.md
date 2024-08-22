@@ -13,7 +13,7 @@ To get started with BetterPerformance, clone this repository and install the nec
 
 bash
 
-git clone https://github.com/yourusername/betterperformance.git
+git clone https://github.com/SoyUnCono/betterperformance.git
 cd betterperformance
 npm install
 
