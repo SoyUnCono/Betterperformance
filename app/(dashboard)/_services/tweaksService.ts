@@ -14,7 +14,7 @@ export const TweaksService = {
   updateTweak: async (tweakID: string, values: any) => {
     try {
       const response = await axios.patch(
-        `/api/tweaks/${tweakID}/updateTweak`,
+        `/api/tweaks/${tweakID}/update`,
         values
       );
       return response.data;
@@ -27,7 +27,7 @@ export const TweaksService = {
   updateRegedit: async (tweakID: string, regeditID: string, value: any) => {
     try {
       const response = await axios.patch(
-        `/api/tweaks/${tweakID}/${regeditID}/updateRegedit`,
+        `/api/tweaks/${tweakID}/${regeditID}/update`,
         value
       );
       return response.data;
@@ -46,7 +46,7 @@ export const TweaksService = {
   ) => {
     try {
       const response = await axios.patch(
-        `/api/tweaks/${tweakID}/addRegedit`,
+        `/api/tweaks/${tweakID}/add`,
         regeditData
       );
       return response.data;
@@ -58,7 +58,7 @@ export const TweaksService = {
 
   deleteTweak: async (tweakID: string) => {
     try {
-      const response = await axios.delete(`/api/tweaks/${tweakID}/deleteTweak`);
+      const response = await axios.delete(`/api/tweaks/${tweakID}/delete`);
       return response.data;
     } catch (error) {
       console.error(`Error deleting tweak: ${error}`);
@@ -66,9 +66,9 @@ export const TweaksService = {
     }
   },
 
-  deleteRegedit: async (tweakID: string, regedits: string) => {
+  deleteRegedit: async (tweakID: string, regeditID: string) => {
     try {
-      const response = await axios.delete(`/api/tweaks/${tweakID}/${regedits}`);
+      const response = await axios.delete(`/api/tweaks/${tweakID}/${regeditID}/delete`);
       return response.data;
     } catch (error) {
       console.error(`Error deleting regedit: ${error}`);
@@ -98,7 +98,7 @@ export const TweaksService = {
 
   toggleSaveTweak: async (tweakID: string) => {
     try {
-      const response = await axios.patch(`/api/tweaks/toggleSave/${tweakID}`);
+      const response = await axios.patch(`/api/tweaks/${tweakID}/favorite`);
       return response.data;
     } catch (error) {
       console.error(`Error toggling save state for tweak: ${error}`);

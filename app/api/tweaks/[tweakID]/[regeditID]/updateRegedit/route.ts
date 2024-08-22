@@ -6,9 +6,7 @@ export const PATCH = async (
   { params }: { params: { tweakID: string } }
 ) => {
   try {
-    const data = await req.json();
-
-    const { regedits, ...tweakData } = data;
+    const { regedits } = await req.json();
 
     if (regedits && Array.isArray(regedits)) {
       const existingRegedits = await db.regedit.findMany({
@@ -25,7 +23,7 @@ export const PATCH = async (
           if (existingRegedit) {
             const entryPromises = regedit.entries.map(async (entry) => {
               const existingEntry = existingRegedit.entries.find(
-                (e) => e.key === entry.key
+                (e: { key: string; }) => e.key === entry.key
               );
               if (existingEntry) {
                 return db.regeditEntry.update({

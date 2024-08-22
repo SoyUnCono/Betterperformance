@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 
 interface TweakItemProps {
   tweak: Tweak;
@@ -38,16 +39,13 @@ export default function TweakItem({
   const router = useRouter();
 
   const onSavedToCollection = async () => {
-    try {
-      setisBookmarkLoading(true);
-      await axios.patch(`/api/tweaks/${tweak.id}/save`);
-      router.refresh();
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.error(error);
-    } finally {
-      setisBookmarkLoading(false);
-    }
+    setisBookmarkLoading(true);
+    await TweaksService.toggleSaveTweak(tweak.id)
+      .then(() => router.refresh())
+      .catch(() => {
+        toast.error("Something went wrong");
+      })
+      .finally(() => setisBookmarkLoading(false));
   };
 
   return (
