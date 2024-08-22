@@ -31,7 +31,6 @@ Usage
 Contributing
 
 We welcome contributions from the community! If you’d like to help improve BetterPerformance, please fork the repository, make your changes, and submit a pull request. Be sure to check out our contributing guidelines for more details.
-@ELPROFETAMOHAMMED
 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
