@@ -39,5 +39,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Support
 
 If you encounter any issues or have questions, feel free to open an issue on GitHub or contact us directly.
-
-Feel free to customize this further to fit your specific needs!
