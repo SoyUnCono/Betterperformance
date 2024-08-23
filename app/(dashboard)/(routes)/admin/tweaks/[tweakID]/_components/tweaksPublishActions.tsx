@@ -75,6 +75,7 @@ export default function TweaksPublishActions({
       <LoadingButton
         variant={"outline"}
         disabled={isLoading}
+        showLoadingText={true}
         isSubmitting={isLoading}
         onClick={onPublish}
       >
