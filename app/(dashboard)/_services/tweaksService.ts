@@ -13,6 +13,7 @@ export const TweaksService = {
 
   updateTweak: async (tweakID: string, values: any) => {
     try {
+      console.log("Updating tweak with:", values);
       const response = await axios.patch(
         `/api/tweaks/${tweakID}/update`,
         values
@@ -68,7 +69,9 @@ export const TweaksService = {
 
   deleteRegedit: async (tweakID: string, regeditID: string) => {
     try {
-      const response = await axios.delete(`/api/tweaks/${tweakID}/${regeditID}/delete`);
+      const response = await axios.delete(
+        `/api/tweaks/${tweakID}/${regeditID}/delete`
+      );
       return response.data;
     } catch (error) {
       console.error(`Error deleting regedit: ${error}`);
