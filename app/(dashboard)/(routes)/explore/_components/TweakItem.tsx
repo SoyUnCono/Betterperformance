@@ -55,7 +55,7 @@ export default function TweakItem({
           <div className="flex gap-x-2 items-center ">
             <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0" />
             <p className="text-xs text-muted-foreground">
-              {`Created at ${formatDistanceToNow(new Date(tweak.createdAt), {
+              {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
                 addSuffix: true,
               })}`}
             </p>
@@ -65,7 +65,7 @@ export default function TweakItem({
             size={"icon"}
             className={cn(
               isSavedByUser &&
-                "dark:bg-red-700 dark:hover:bg-red-600 bg-red-600 hover:bg-red-500 text-white hover:text-white"
+                "dark:bg-red-700 dark:hover:bg-red-600 bg-red-600 hover:bg-red-500 text-white border-none hover:text-white"
             )}
             onClick={onSavedToCollection}
           >

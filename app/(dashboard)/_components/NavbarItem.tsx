@@ -30,7 +30,7 @@ export default function NavbarItem({
             href={path}
             className={`flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8 ${isCurrentPathname ? "text-primary" : "text-muted-foreground"}`}
           >
-            <Icon className="h-5 w-5" />
+            <Icon className="h-5 w-5 hover:scale-110" />
             <span className="sr-only">{label}</span>
           </Link>
         </TooltipTrigger>

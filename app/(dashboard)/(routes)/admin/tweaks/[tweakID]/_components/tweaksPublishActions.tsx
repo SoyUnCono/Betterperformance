@@ -1,6 +1,7 @@
 "use client";
 
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
+import { LoadingButton } from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { EyeOff, Trash } from "lucide-react";
@@ -20,29 +21,41 @@ export default function TweaksPublishActions({
   isPublished,
 }: TweaksPublishActionsProps) {
   const [isLoading, setisLoading] = useState(false);
+  const [isDeleteLoading, setisDeleteLoading] = useState(false);
   const router = useRouter();
 
   const onPublish = async () => {
-    try {
-      if (isPublished) {
-        setisLoading(true);
-        await TweaksService.unpublishTweak(tweakID);
-        toast.success("The tweak its now Hide!");
-      } else {
-        setisLoading(true);
-        await TweaksService.publishTweak(tweakID);
-        toast.success("The tweak has been published successfully!");
-      }
-      router.refresh();
-    } catch (error) {
-      toast.error("There was an error publishing the tweak. Please try again.");
-    } finally {
-      setisLoading(false);
+    if (isPublished) {
+      setisLoading(true);
+      await TweaksService.unpublishTweak(tweakID)
+        .then(() => toast.success("The tweak its now Hide!"))
+        .catch((error) => {
+          toast.error(
+            "There was an error publishing the tweak. Please try again."
+          );
+        })
+        .finally(() => {
+          router.refresh();
+          setisLoading(false);
+        });
+    } else {
+      setisLoading(true);
+      await TweaksService.publishTweak(tweakID)
+        .then(() => toast.success("The tweak has been published successfully!"))
+        .catch((error) => {
+          toast.error(
+            "There was an error publishing the tweak. Please try again."
+          );
+        })
+        .finally(() => {
+          router.refresh();
+          setisLoading(false);
+        });
     }
   };
 
   const onDelete = async () => {
-    setisLoading(true);
+    setisDeleteLoading(true);
 
     await TweaksService.deleteTweak(tweakID)
       .then(() => {
@@ -52,16 +65,18 @@ export default function TweaksPublishActions({
         toast.error("There was an error deleting the tweak. Please try again.")
       )
       .finally(() => {
-        setisLoading(false);
+        setisDeleteLoading(false);
         router.push("/admin");
       });
   };
 
   return (
     <div className="flex items-center gap-x-3">
-      <Button
+      <LoadingButton
         variant={"outline"}
-        disabled={disabled || isLoading}
+        disabled={isLoading}
+        showLoadingText={true}
+        isSubmitting={isLoading}
         onClick={onPublish}
       >
         {isPublished ? (
@@ -72,16 +87,17 @@ export default function TweaksPublishActions({
         ) : (
           "Publish"
         )}
-      </Button>
+      </LoadingButton>
 
-      <Button
+      <LoadingButton
         variant={"destructive"}
-        disabled={isLoading}
+        isSubmitting={isDeleteLoading}
+        disabled={isDeleteLoading}
         onClick={onDelete}
         size={"icon"}
       >
         <Trash className="h-4 w-4" />
-      </Button>
+      </LoadingButton>
     </div>
   );
 }

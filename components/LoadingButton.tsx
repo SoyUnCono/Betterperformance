@@ -1,11 +1,10 @@
 "use client";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
-import { isValid } from "zod";
 
 const loadingButtonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -43,6 +42,8 @@ export interface LoadingButtonProps
   isSubmitting: boolean;
   isValid?: boolean;
   title?: string;
+  showLoadingText?: boolean;
+  children?: React.ReactNode;
 }
 
 const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
@@ -50,6 +51,8 @@ const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
     {
       className,
       variant,
+      showLoadingText,
+      children,
       size,
       asChild,
       isSubmitting,
@@ -70,15 +73,18 @@ const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
         {isSubmitting ? (
           <div className="flex items-center justify-center gap-x-2">
             <LoaderCircle className="animate-spin w-4 h-4" />
-            <p className="text-sm text-muted-foreground">Saving...</p>
+            {showLoadingText && (
+              <p className="text-sm text-muted-foreground">Saving...</p>
+            )}
           </div>
         ) : (
-          <p className="text-sm">{title ? title : "Save"}</p>
+          <>{children || <p className="text-sm">{title || "Save"}</p>}</>
         )}
       </Comp>
     );
   }
 );
+
 LoadingButton.displayName = "LoadingButton";
 
 export { LoadingButton, loadingButtonVariants };
