@@ -13,9 +13,11 @@ To get started with BetterPerformance, clone this repository and install the nec
 
 bash
 
-git clone https://github.com/yourusername/betterperformance.git
-cd betterperformance
-npm install
+git clone https://github.com/SoyUnCono/betterperformance.git
+
+> > > > > > > 0194e74c6275cbbcf626472179b1e5c0765b467f
+> > > > > > > cd betterperformance
+> > > > > > > npm install
 
 Usage
 
