@@ -8,17 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Pencil, PlusCircle } from "lucide-react";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 import { FormValues, Regedit } from "./_interfaces/Regedit";
+import { Newsreader } from "next/font/google";
 
 interface RegeditsFormProps {
   initialData: Regedit[];
   tweakID: string;
-  regeditID: string;
 }
 
 export default function RegeditsForm({
   initialData,
   tweakID,
-  regeditID,
 }: RegeditsFormProps) {
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -28,7 +27,7 @@ export default function RegeditsForm({
 
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const { handleSubmit, control } = methods;
-  const { fields, remove, append, update } = useFieldArray({
+  const { fields, remove, append } = useFieldArray({
     control,
     name: "regedits",
   });
@@ -39,33 +38,36 @@ export default function RegeditsForm({
     setEditingIndex((current) => (current === index ? null : index));
   };
 
-  const handleAddRegedits = async () => {
-    try {
-      const newRegedit = await TweaksService.addRegedit(tweakID, {
-        path: "",
-        entries: [{ key: "", value: "" }],
+  const handleAddRegedit = async () => {
+    await TweaksService.createRegedit(tweakID, {
+      path: "Path",
+      entries: [{ key: "Key", value: "Values" }],
+    })
+      .then((newRegedit) => {
+        append(newRegedit);
+        console.log("Regedit ID:", newRegedit.id);
+        toggleEditing(fields.length);
+      })
+      .finally(() => router.refresh())
+      .catch((error) => {
+        toast.error(
+          `An error occurred while adding the regedit: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
       });
-
-      append(newRegedit);
-      const newIndex = fields.length;
-      toggleEditing(newIndex);
-    } catch (error) {
-      toast.error(
-        `An error occurred while adding the regedit: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    }
   };
 
-  const onSubmit = async (data: FormValues) => {
+  const handleSaveSuccess = () => toggleEditing(null);
+  
+  const onRemove = async (id: string) => {
     try {
-      await TweaksService.updateTweak(tweakID, data);
-      toast.success("The Tweak has been updated successfully!");
-      router.refresh();
+      await TweaksService.deleteRegedit(tweakID, id);
+      remove(fields.findIndex((field) => field.id === id));
+      toggleEditing(null);
     } catch (error) {
       toast.error(
-        `An error occurred while updating the data: ${
+        `An error occurred while removing the regedit: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
@@ -74,7 +76,7 @@ export default function RegeditsForm({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit((data) => console.log(data))}>
         {fields.map((regedit, index) => (
           <div
             key={regedit.id}
@@ -100,10 +102,11 @@ export default function RegeditsForm({
             </div>
             {editingIndex === index && (
               <RegeditForm
-                regeditID={regeditID}
+                regeditID={regedit.id}
                 index={index}
                 tweakID={tweakID}
-                onDelete={() => remove(index)}
+                onDelete={() => onRemove}
+                onSaveSuccess={handleSaveSuccess} // Pasar la función
               />
             )}
           </div>
@@ -112,7 +115,7 @@ export default function RegeditsForm({
           <Button
             type="button"
             variant="outline"
-            onClick={handleAddRegedits}
+            onClick={handleAddRegedit}
             className="gap-x-2"
           >
             <PlusCircle className="w-4 h-4" />

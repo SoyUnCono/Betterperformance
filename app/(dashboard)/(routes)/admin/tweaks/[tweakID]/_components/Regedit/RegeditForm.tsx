@@ -1,13 +1,12 @@
 "use client";
 
-import React, { isValidElement, useState } from "react";
+import React, { useState } from "react";
 import { useFormContext, useFieldArray } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Trash2, Plus, SaveAll } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { FormValues } from "./_interfaces/Regedit";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
@@ -16,6 +15,7 @@ interface RegeditFormProps {
   regeditID: string;
   index: number;
   onDelete: () => void;
+  onSaveSuccess: () => void;
   tweakID: string;
 }
 
@@ -24,6 +24,7 @@ export default function RegeditForm({
   onDelete,
   index,
   tweakID,
+  onSaveSuccess,
 }: RegeditFormProps) {
   const { control, register, handleSubmit } = useFormContext<FormValues>();
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +41,6 @@ export default function RegeditForm({
     await TweaksService.deleteRegedit(tweakID, regeditID)
       .then(() => {
         toast.success("Regedit deleted successfully!");
-        onDelete();
       })
       .catch((error) =>
         toast.error(
@@ -54,19 +54,22 @@ export default function RegeditForm({
 
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
-    try {
-      await axios.patch(`/api/tweaks/${tweakID}`, data);
-      toast.success("The Tweak has been updated successfully!");
-    } catch (error) {
-      toast.error(
-        `An error occurred while updating the data: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    } finally {
-      setIsLoading(false);
-      router.refresh();
-    }
+    await TweaksService.updateRegedit(tweakID, data)
+      .then(() => {
+        toast.success("The Regedit has been updated successfully!");
+        onSaveSuccess();
+      })
+      .catch((error) =>
+        toast.error(
+          `An error occurred while updating the regedit: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        )
+      )
+      .finally(() => {
+        router.refresh();
+        setIsLoading(false);
+      });
   };
 
   return (
@@ -94,23 +97,16 @@ export default function RegeditForm({
         </Button>
       </div>
       <div className="space-y-2">
-        <Input
-          placeholder="Path"
-          {...register(`regedits.${regeditIndex}.path`)}
-        />
+        <Input placeholder="Path" {...register(`regedits.${index}.path`)} />
         {fields.map((entry, entryIndex) => (
           <div key={entry.id} className="flex items-center space-x-4 my-2">
             <Input
               placeholder="Key"
-              {...register(
-                `regedits.${regeditIndex}.entries.${entryIndex}.key`
-              )}
+              {...register(`regedits.${index}.entries.${entryIndex}.key`)}
             />
             <Input
               placeholder="Value"
-              {...register(
-                `regedits.${regeditIndex}.entries.${entryIndex}.value`
-              )}
+              {...register(`regedits.${index}.entries.${entryIndex}.value`)}
             />
             <Button
               type="button"
@@ -127,7 +123,7 @@ export default function RegeditForm({
           <Button
             type="button"
             variant="outline"
-            onClick={() => append({ id: uuidv4(), key: "", value: "" })}
+            onClick={() => append({ id: "", key: "", value: "" })}
           >
             <Plus className="h-4 w-4" />
             Add Entry

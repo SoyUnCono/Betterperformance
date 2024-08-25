@@ -9,7 +9,6 @@ import {
   CloudDownload,
   DownloadCloudIcon,
   Eye,
-  FileHeart,
   HeartIcon,
   Loader2,
 } from "lucide-react";
@@ -18,7 +17,6 @@ import Link from "next/link";
 import { truncate } from "lodash";
 import TweakTags from "@/components/TweakTags";
 import toast from "react-hot-toast";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
@@ -42,9 +40,7 @@ export default function TweakItem({
     setisBookmarkLoading(true);
     await TweaksService.toggleSaveTweak(tweak.id)
       .then(() => router.refresh())
-      .catch(() => {
-        toast.error("Something went wrong");
-      })
+      .catch((error) => toast.error(`Something went wrong ${error}`))
       .finally(() => setisBookmarkLoading(false));
   };
 

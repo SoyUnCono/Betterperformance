@@ -1,4 +1,6 @@
+import { Value } from "@radix-ui/react-select";
 import axios from "axios";
+import { values } from "lodash";
 
 export const TweaksService = {
   createTweak: async (values: any) => {
@@ -25,10 +27,10 @@ export const TweaksService = {
     }
   },
 
-  updateRegedit: async (tweakID: string, regeditID: string, value: any) => {
+  updateRegedit: async (tweakID: string, value: any) => {
     try {
       const response = await axios.patch(
-        `/api/tweaks/${tweakID}/${regeditID}/update`,
+        `/api/tweaks/${tweakID}/regedit/update`,
         value
       );
       return response.data;
@@ -38,7 +40,7 @@ export const TweaksService = {
     }
   },
 
-  addRegedit: async (
+  createRegedit: async (
     tweakID: string,
     regeditData: {
       path: string;
@@ -46,14 +48,13 @@ export const TweaksService = {
     }
   ) => {
     try {
-      const response = await axios.patch(
-        `/api/tweaks/${tweakID}/add`,
+      const response = await axios.post(
+        `/api/tweaks/${tweakID}/regedit`,
         regeditData
       );
       return response.data;
     } catch (error) {
-      console.error(`Error adding regedit: ${error}`);
-      throw error;
+      console.error(`Error adding the tweak: ${error}`);
     }
   },
 
