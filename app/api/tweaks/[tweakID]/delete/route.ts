@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export const DELETE = async (
@@ -6,24 +7,18 @@ export const DELETE = async (
   { params }: { params: { tweakID: string } }
 ) => {
   try {
+    const { userId } = auth();
+    if (!userId) return new NextResponse("Unauthorized", { status: 401 });
+
     const { tweakID } = params;
 
     const tweak = await db.tweak.findUnique({
       where: { id: tweakID },
-      include: { regedits: { include: { entries: true } } },
     });
 
     if (!tweak) {
       return new NextResponse("Tweak not found", { status: 404 });
     }
-
-    await db.regeditEntry.deleteMany({
-      where: { regeditId: { in: tweak.regedits.map((r) => r.id) } },
-    });
-
-    await db.regedit.deleteMany({
-      where: { id: { in: tweak.regedits.map((r) => r.id) } },
-    });
 
     const deletedTweak = await db.tweak.delete({
       where: { id: tweakID },

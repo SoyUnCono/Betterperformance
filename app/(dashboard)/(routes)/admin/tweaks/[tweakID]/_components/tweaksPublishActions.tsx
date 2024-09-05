@@ -3,20 +3,24 @@
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 import { LoadingButton } from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import axios from "axios";
-import { EyeOff, Trash } from "lucide-react";
+import { EyeOff, ShieldAlert, ShieldMinus, Trash } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface TweaksPublishActionsProps {
-  disabled: boolean;
   tweakID: string;
   isPublished: boolean;
 }
 
 export default function TweaksPublishActions({
-  disabled,
   tweakID,
   isPublished,
 }: TweaksPublishActionsProps) {
@@ -71,7 +75,7 @@ export default function TweaksPublishActions({
   };
 
   return (
-    <div className="flex items-center gap-x-3">
+    <div className="flex items-center gap-x-1">
       <LoadingButton
         variant={"outline"}
         disabled={isLoading}
@@ -80,21 +84,29 @@ export default function TweaksPublishActions({
         onClick={onPublish}
       >
         {isPublished ? (
-          <div className="flex items-center gap-x-2">
-            <EyeOff />
-            Hidde
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <ShieldAlert className="h-4 w-4" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">
+                  Disable the tweak temporarily. It will be hidden from other
+                  users and visible only to Tweakers.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : (
           "Publish"
         )}
       </LoadingButton>
 
       <LoadingButton
-        variant={"destructive"}
+        variant={"outline"}
         isSubmitting={isDeleteLoading}
         disabled={isDeleteLoading}
         onClick={onDelete}
-        size={"icon"}
       >
         <Trash className="h-4 w-4" />
       </LoadingButton>

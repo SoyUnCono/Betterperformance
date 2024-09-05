@@ -40,7 +40,9 @@ export default function TweakItem({
     setisBookmarkLoading(true);
     await TweaksService.toggleSaveTweak(tweak.id)
       .then(() => router.refresh())
-      .catch((error) => toast.error(`Something went wrong ${error}`))
+      .catch((error) =>
+        error instanceof Error ? error.message : toast.error(`Unknown Error`)
+      )
       .finally(() => setisBookmarkLoading(false));
   };
 
@@ -49,12 +51,13 @@ export default function TweakItem({
       <div className="w-full h-full bg-secondary/20 border rounded-md p-4 flex flex-col items-start  justify-start gap-y-4">
         <Box className="flex items-center justify-between ">
           <div className="flex gap-x-2 items-center ">
-            <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0" />
-            <p className="text-xs text-muted-foreground">
-              {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
-                addSuffix: true,
-              })}`}
-            </p>
+            {categoryName && (
+              <Box className="flex-wrap justify-start gap-1  ">
+                <p className="text-muted-foreground text-xs border px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
+                  {categoryName}
+                </p>
+              </Box>
+            )}
           </div>
           <Button
             variant={"outline"}
@@ -118,13 +121,14 @@ export default function TweakItem({
           </CardDescription>
         )}
 
-        {categoryName && (
-          <Box className="flex-wrap justify-start gap-1  ">
-            <p className="text-muted-foreground text-xs border px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
-              {categoryName}
-            </p>
-          </Box>
-        )}
+        <div className="flex items-center gap-x-2 ">
+          <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0" />
+          <p className="text-xs text-muted-foreground">
+            {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
+              addSuffix: true,
+            })}`}
+          </p>
+        </div>
 
         <Box className="gap-2 mt-auto">
           <Link href={`/search/${tweak.id}`} className="w-full">

@@ -17,27 +17,11 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Plus } from "lucide-react";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
+import { LoadingButton } from "@/components/LoadingButton";
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Please fill all the fields" }),
   short_description: z.string().optional(),
-  regedits: z
-    .array(
-      z.object({
-        path: z.string().min(1, { message: "Please fill all the fields" }),
-        entries: z
-          .array(
-            z.object({
-              key: z.string().min(1, { message: "Please fill all the fields" }),
-              value: z
-                .string()
-                .min(1, { message: "Please fill all the fields" }),
-            })
-          )
-          .min(1, { message: "Please fill all the fields" }),
-      })
-    )
-    .min(1, { message: "Please fill all the fields" }),
 });
 
 export default function CreateNewTweak() {
@@ -46,38 +30,21 @@ export default function CreateNewTweak() {
     defaultValues: {
       title: "",
       short_description: "",
-      regedits: [{ path: "", entries: [{ key: "", value: "" }] }],
     },
-  });
-
-  const { fields, append, update } = useFieldArray({
-    control: form.control,
-    name: "regedits",
   });
 
   const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await TweaksService.createTweak(values).catch(() =>
-      toast.error("Oh no, a problem was found while creating a tweak")
-    );
-
-    router.push(`/admin/tweaks/${res.id}`);
-  };
-
-  const addRegedits = () => {
-    append({ path: "", entries: [{ key: "", value: "" }] });
+    try {
+      const res = await TweaksService.createTweak(values);
+      router.push(`/admin/tweaks/${res.id}`);
+    } catch (error) {
+      toast.error("Oh no, a problem was found while creating a tweak");
+    }
   };
 
   const { isSubmitting } = form.formState;
-
-  const addEntry = (index: number) => {
-    const entries = form.getValues(`regedits.${index}.entries`);
-    update(index, {
-      ...form.getValues(`regedits.${index}`),
-      entries: [...entries, { key: "", value: "" }],
-    });
-  };
 
   return (
     <div className="max-w-5xl mx-auto flex md:items-center md:justify-center h-full p-6">
@@ -129,88 +96,9 @@ export default function CreateNewTweak() {
             />
 
             <div>
-              <h1 className="text-xl">Regedit Entries</h1>
-              <p className="text-sm text-neutral-500 mb-5">
-                Note: Do not include quotes in the registry fields; these will
-                be added automatically by the application.
-              </p>
-              {fields.map((regeditField, regeditIndex) => (
-                <div key={regeditField.id} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name={`regedits.${regeditIndex}.path`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Path</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'"
-                            {...field}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  {form
-                    .getValues(`regedits.${regeditIndex}.entries`)
-                    .map((entryField, entryIndex) => (
-                      <div key={entryIndex} className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name={`regedits.${regeditIndex}.entries.${entryIndex}.key`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Key</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g 'EnableLUA'"
-                                  {...field}
-                                />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`regedits.${regeditIndex}.entries.${entryIndex}.value`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Value</FormLabel>
-                              <FormControl>
-                                <Input placeholder="e.g '0'" {...field} />
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    ))}
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => addEntry(regeditIndex)}
-                    className="mt-4 w-full bg-secondary/20"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Entry
-                  </Button>
-                </div>
-              ))}
-
               <div className="items-center flex justify-between mt-8">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addRegedits}
-                  className="bg-secondary/40"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Regedit
-                </Button>
-
-                <Button
+                <LoadingButton
+                  isSubmitting={isSubmitting}
                   type="submit"
                   disabled={
                     form.formState.isSubmitting || !form.formState.isValid
@@ -219,7 +107,7 @@ export default function CreateNewTweak() {
                   variant={"outline"}
                 >
                   Continue
-                </Button>
+                </LoadingButton>
               </div>
             </div>
           </form>

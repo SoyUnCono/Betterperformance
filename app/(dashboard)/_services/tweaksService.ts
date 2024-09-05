@@ -1,6 +1,4 @@
-import { Value } from "@radix-ui/react-select";
 import axios from "axios";
-import { values } from "lodash";
 
 export const TweaksService = {
   createTweak: async (values: any) => {
@@ -15,7 +13,6 @@ export const TweaksService = {
 
   updateTweak: async (tweakID: string, values: any) => {
     try {
-      console.log("Updating tweak with:", values);
       const response = await axios.patch(
         `/api/tweaks/${tweakID}/update`,
         values
@@ -27,55 +24,12 @@ export const TweaksService = {
     }
   },
 
-  updateRegedit: async (tweakID: string, value: any) => {
-    try {
-      const response = await axios.patch(
-        `/api/tweaks/${tweakID}/regedit/update`,
-        value
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error updating regedit: ${error}`);
-      throw error;
-    }
-  },
-
-  createRegedit: async (
-    tweakID: string,
-    regeditData: {
-      path: string;
-      entries: { key: string; value: string }[];
-    }
-  ) => {
-    try {
-      const response = await axios.post(
-        `/api/tweaks/${tweakID}/regedit`,
-        regeditData
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error adding the tweak: ${error}`);
-    }
-  },
-
   deleteTweak: async (tweakID: string) => {
     try {
       const response = await axios.delete(`/api/tweaks/${tweakID}/delete`);
       return response.data;
     } catch (error) {
       console.error(`Error deleting tweak: ${error}`);
-      throw error;
-    }
-  },
-
-  deleteRegedit: async (tweakID: string, regeditID: string) => {
-    try {
-      const response = await axios.delete(
-        `/api/tweaks/${tweakID}/${regeditID}/delete`
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error deleting regedit: ${error}`);
       throw error;
     }
   },

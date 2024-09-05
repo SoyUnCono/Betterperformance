@@ -1,6 +1,4 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
 import { ArrowLeft, FilePenLine, Info, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -13,13 +11,14 @@ import CategoryForm from "./_components/Forms/CategoryForm";
 import DescriptionForm from "./_components/Forms/DescriptionForm";
 import ImageForm from "./_components/Forms/ImageForm";
 import ShortDescriptionForm from "./_components/Forms/ShortDescription";
-import RegeditsForm from "./_components/Regedit/RegeditsForm";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { db } from "@/lib/db";
+import RegeditEditorForm from "./_components/Forms/RegeditEditorForm";
 
 interface TweaksDetailProps {
   tweakID: string;
@@ -39,15 +38,6 @@ export default async function TweaksDetailPage({
     },
   });
 
-  const regeditEntries = await db.regedit.findMany({
-    where: {
-      tweakId: params.tweakID,
-    },
-    include: {
-      entries: true,
-    },
-  });
-
   const categories = await db.category.findMany({
     orderBy: { name: "asc" },
   });
@@ -57,25 +47,10 @@ export default async function TweaksDetailPage({
   const requiredFields = [
     tweak.title,
     tweak.short_description,
-    regeditEntries.length > 0,
-    tweak.regeditID,
+    tweak.regedit,
     tweak.author,
     tweak.categoryId,
   ];
-
-  const filteredRegeditEntries = regeditEntries.map((entry) => ({
-    id: entry.id,
-    path: entry.path as string,
-    entries: entry.entries.map((e) => ({
-      id: e.id,
-      key: e.key as string,
-      value: e.value as string,
-    })),
-  }));
-
-  const regeditID = Array.isArray(tweak.regeditID)
-    ? tweak.regeditID[0]
-    : tweak.regeditID;
 
   const totalFields = requiredFields.length;
   const completedFields = requiredFields.filter(Boolean).length;
@@ -85,7 +60,7 @@ export default async function TweaksDetailPage({
 
   return (
     <>
-      <div className="flex items-center justify-between my-2 mb-6 ">
+      <div className="flex items-center justify-between my-2 mb-6">
         <Link href={"/admin"} className="sm:hidden flex">
           <Button
             className="flex items-center gap-3 text-sm text-neutral-500"
@@ -106,7 +81,7 @@ export default async function TweaksDetailPage({
             </Button>
           </Link>
           <div className="flex flex-col gap-y">
-            <div className="flex  gap-x-1">
+            <div className="flex gap-x-1">
               <h1 className="text-2xl font-medium">Admin Panel</h1>
               <TooltipProvider>
                 <Tooltip>
@@ -114,7 +89,7 @@ export default async function TweaksDetailPage({
                     <Info className="w-4 h-4 sm:flex hidden" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <span className=" text-xs text-muted-foreground ">
+                    <span className="text-xs text-muted-foreground">
                       Unique Tweak ID: {params.tweakID}
                     </span>
                   </TooltipContent>
@@ -122,7 +97,7 @@ export default async function TweaksDetailPage({
               </TooltipProvider>
             </div>
             <span className="text-sm text-neutral-500">
-              You need to complete ({completionText}) to continue.
+              You need to complete ({completionText}) to continue. regedit:
             </span>
           </div>
         </div>
@@ -158,16 +133,12 @@ export default async function TweaksDetailPage({
           <AuthorForm initialData={tweak} tweakID={params.tweakID} />
           <DescriptionForm initialData={tweak} tweakID={params.tweakID} />
         </div>
-        <div className="mb-2">
+        <div className="flex flex-col w-full h-full">
           <div className="flex items-center gap-x-2">
             <IconBagde icon={FilePenLine} />
             <h2 className="text-xl text-neutral-700">Regedits Information</h2>
           </div>
-          <RegeditsForm
-            regeditID={regeditID}
-            initialData={filteredRegeditEntries}
-            tweakID={tweak.id}
-          />
+          <RegeditEditorForm tweakID={params.tweakID} initialData={tweak} />
         </div>
       </div>
     </>

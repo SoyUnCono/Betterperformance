@@ -16,30 +16,13 @@ model Tweak {
   short_description String?
   icon_url          String?
   author            String?
-  regedits          Regedit[]
-  regeditID         String[]  @db.ObjectId
   savedUsers        String[]
   categoryId        String?   @db.ObjectId
   category          Category? @relation(fields: [categoryId], references: [id])
+  regedit           String?
   isPublished       Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @default(now())
-}
-
-model Regedit {
-  id      String         @id @default(auto()) @map("_id") @db.ObjectId
-  path    String
-  entries RegeditEntry[]
-  tweakId String         @db.ObjectId
-  tweak   Tweak          @relation(fields: [tweakId], references: [id])
-}
-
-model RegeditEntry {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  key       String
-  value     String
-  regeditId String  @db.ObjectId
-  regedit   Regedit @relation(fields: [regeditId], references: [id])
 }
 
 model Category {

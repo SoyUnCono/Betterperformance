@@ -17,8 +17,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import { ComboBox } from "@/components/ui/combo-box";
-import { Textarea } from "@/components/ui/textarea";
 import Editor from "../Editor/Editor";
 import EditorPreview from "../Editor/EditorPreview";
 import { LoadingButton } from "@/components/LoadingButton";
