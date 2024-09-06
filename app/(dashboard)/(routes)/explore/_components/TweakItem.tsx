@@ -23,13 +23,15 @@ import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 
 interface TweakItemProps {
   tweak: Tweak;
-  categoryName: String;
+  categoryName: string;
+  tweakID: string;
   userId: string | null;
 }
 
 export default function TweakItem({
   tweak,
   categoryName,
+  tweakID,
   userId,
 }: TweakItemProps) {
   const [isBookmarkLoading, setisBookmarkLoading] = useState(false);
@@ -38,8 +40,15 @@ export default function TweakItem({
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
-    await TweaksService.toggleSaveTweak(tweak.id)
-      .then(() => router.refresh())
+
+    await TweaksService.toggleSaveTweak(tweakID)
+      .then(() => {
+        tweak.savedUsers = isSavedByUser
+          ? (tweak.savedUsers || []).filter((id) => id !== userId)
+          : userId
+            ? [...(tweak.savedUsers || []), userId]
+            : tweak.savedUsers || [];
+      })
       .catch((error) =>
         error instanceof Error ? error.message : toast.error(`Unknown Error`)
       )
