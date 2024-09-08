@@ -40,7 +40,7 @@ export interface LoadingButtonProps
     VariantProps<typeof loadingButtonVariants> {
   asChild?: boolean;
   isSubmitting: boolean;
-  isValid?: boolean;
+  isValid?: boolean | string;
   title?: string;
   showLoadingText?: boolean;
   children?: React.ReactNode;

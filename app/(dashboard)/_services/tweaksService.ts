@@ -1,3 +1,4 @@
+import { TweakType } from "@prisma/client";
 import axios from "axios";
 
 export const TweaksService = {
@@ -13,7 +14,6 @@ export const TweaksService = {
 
   updateTweak: async (tweakID: string, values: any) => {
     try {
-      console.log("Updating tweak with:", values);
       const response = await axios.patch(
         `/api/tweaks/${tweakID}/update`,
         values
@@ -25,34 +25,12 @@ export const TweaksService = {
     }
   },
 
-  updateRegedit: async (tweakID: string, regeditID: string, value: any) => {
+  changeTweakType: async (tweakID: string, type: TweakType) => {
     try {
-      const response = await axios.patch(
-        `/api/tweaks/${tweakID}/${regeditID}/update`,
-        value
-      );
+      const response = await axios.patch(`/api/tweaks/${tweakID}/type`, type);
       return response.data;
     } catch (error) {
-      console.error(`Error updating regedit: ${error}`);
-      throw error;
-    }
-  },
-
-  addRegedit: async (
-    tweakID: string,
-    regeditData: {
-      path: string;
-      entries: { key: string; value: string }[];
-    }
-  ) => {
-    try {
-      const response = await axios.patch(
-        `/api/tweaks/${tweakID}/add`,
-        regeditData
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error adding regedit: ${error}`);
+      console.error(`Error updating tweak: ${error}`);
       throw error;
     }
   },
@@ -63,18 +41,6 @@ export const TweaksService = {
       return response.data;
     } catch (error) {
       console.error(`Error deleting tweak: ${error}`);
-      throw error;
-    }
-  },
-
-  deleteRegedit: async (tweakID: string, regeditID: string) => {
-    try {
-      const response = await axios.delete(
-        `/api/tweaks/${tweakID}/${regeditID}/delete`
-      );
-      return response.data;
-    } catch (error) {
-      console.error(`Error deleting regedit: ${error}`);
       throw error;
     }
   },

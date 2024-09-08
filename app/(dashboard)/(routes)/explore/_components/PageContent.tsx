@@ -34,9 +34,11 @@ export default function PageContent({ tweak, userId }: PageContentProps) {
         {tweak.map((tweakItem) => (
           <TweakItem
             key={tweakItem.id}
+            tweakID={tweakItem.id}
             tweak={tweakItem}
-            userId={tweakItem.userId}
-            categoryName={tweakItem.category?.name}
+            userId={userId || "User Not Found"}
+            categoryName={tweakItem.category?.name || "Undefined"}
+            tweakType={tweakItem.tweak_type || null}
           />
         ))}
       </div>

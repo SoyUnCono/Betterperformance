@@ -1,5 +1,5 @@
 "use client";
-import { Tweak } from "@prisma/client";
+import { Tweak, TweakType } from "@prisma/client";
 import React, { useState } from "react";
 import { Card, CardDescription } from "@/components/ui/card";
 import Box from "@/components/Box";
@@ -9,7 +9,6 @@ import {
   CloudDownload,
   DownloadCloudIcon,
   Eye,
-  FileHeart,
   HeartIcon,
   Loader2,
 } from "lucide-react";
@@ -18,33 +17,37 @@ import Link from "next/link";
 import { truncate } from "lodash";
 import TweakTags from "@/components/TweakTags";
 import toast from "react-hot-toast";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 
 interface TweakItemProps {
   tweak: Tweak;
-  categoryName: String;
+  categoryName: string;
+  tweakID: string;
+  tweakType: TweakType | null;
   userId: string | null;
 }
 
 export default function TweakItem({
   tweak,
   categoryName,
+  tweakType,
+  tweakID,
   userId,
 }: TweakItemProps) {
   const [isBookmarkLoading, setisBookmarkLoading] = useState(false);
-  const isSavedByUser = userId && tweak.savedUsers?.includes(userId);
-  const router = useRouter();
+  const [isSavedByUser, setIsSavedByUser] = useState(
+    userId && tweak.savedUsers?.includes(userId)
+  );
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
-    await TweaksService.toggleSaveTweak(tweak.id)
-      .then(() => router.refresh())
-      .catch(() => {
-        toast.error("Something went wrong");
-      })
+
+    await TweaksService.toggleSaveTweak(tweakID)
+      .then(() => setIsSavedByUser(!isSavedByUser))
+      .catch((error) =>
+        error instanceof Error ? error.message : toast.error(`Unknown Error`)
+      )
       .finally(() => setisBookmarkLoading(false));
   };
 
@@ -53,12 +56,18 @@ export default function TweakItem({
       <div className="w-full h-full bg-secondary/20 border rounded-md p-4 flex flex-col items-start  justify-start gap-y-4">
         <Box className="flex items-center justify-between ">
           <div className="flex gap-x-2 items-center ">
-            <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0" />
-            <p className="text-xs text-muted-foreground">
-              {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
-                addSuffix: true,
-              })}`}
-            </p>
+            {categoryName && (
+              <Box className="flex-wrap justify-start gap-1  ">
+                <p className="text-muted-foreground text-xs border px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
+                  {categoryName}
+                </p>
+              </Box>
+            )}
+            {tweakType && (
+              <h1 className="text-muted-foreground text-xs  px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
+                {tweakType}
+              </h1>
+            )}
           </div>
           <Button
             variant={"outline"}
@@ -122,13 +131,14 @@ export default function TweakItem({
           </CardDescription>
         )}
 
-        {categoryName && (
-          <Box className="flex-wrap justify-start gap-1  ">
-            <p className="text-muted-foreground text-xs border px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
-              {categoryName}
-            </p>
-          </Box>
-        )}
+        <div className="flex items-center gap-x-2 ">
+          <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0" />
+          <p className="text-xs text-muted-foreground">
+            {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
+              addSuffix: true,
+            })}`}
+          </p>
+        </div>
 
         <Box className="gap-2 mt-auto">
           <Link href={`/search/${tweak.id}`} className="w-full">
