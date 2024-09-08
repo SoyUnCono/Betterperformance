@@ -38,15 +38,6 @@ export default function LineNumberedTextarea({
     }
   }, [textAreaRef]);
 
-  const onRenderLineNumbers = () => {
-    const lines = value.split("\n").map((_, i) => (
-      <p key={i + 1} className="text-right pr-2">
-        {i + 1}
-      </p>
-    ));
-    return lines;
-  };
-
   return (
     <div className="mb-2 mt-2 relative flex max-h-[75vh] min-h-[75vh]">
       {!isEditing ? (
@@ -56,13 +47,16 @@ export default function LineNumberedTextarea({
         >
           {value.split("\n").map((line, index) => {
             const isPath = line.trim().startsWith("[");
+            const isComment = line.trim().startsWith(";");
             return (
               <div key={index} className="flex">
                 <span className="text-muted text-sm pr-4">{index + 1}</span>
                 <span
                   className={cn(
-                    "text-muted-foreground",
-                    isPath ? "font-bold" : "font-normal"
+                    isPath
+                      ? "font-semibold text-muted-foreground/80"
+                      : "font-normal text-muted-foreground/60 text-xs",
+                    isComment && "font-bold text-white underline"
                   )}
                 >
                   {line}

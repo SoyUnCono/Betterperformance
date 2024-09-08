@@ -1,3 +1,4 @@
+import { TweakType } from "@prisma/client";
 import axios from "axios";
 
 export const TweaksService = {
@@ -17,6 +18,16 @@ export const TweaksService = {
         `/api/tweaks/${tweakID}/update`,
         values
       );
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating tweak: ${error}`);
+      throw error;
+    }
+  },
+
+  changeTweakType: async (tweakID: string, type: TweakType) => {
+    try {
+      const response = await axios.patch(`/api/tweaks/${tweakID}/type`, type);
       return response.data;
     } catch (error) {
       console.error(`Error updating tweak: ${error}`);

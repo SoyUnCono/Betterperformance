@@ -1,5 +1,5 @@
 "use client";
-import { Tweak } from "@prisma/client";
+import { Tweak, TweakType } from "@prisma/client";
 import React, { useState } from "react";
 import { Card, CardDescription } from "@/components/ui/card";
 import Box from "@/components/Box";
@@ -17,7 +17,6 @@ import Link from "next/link";
 import { truncate } from "lodash";
 import TweakTags from "@/components/TweakTags";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 
@@ -25,30 +24,27 @@ interface TweakItemProps {
   tweak: Tweak;
   categoryName: string;
   tweakID: string;
+  tweakType: TweakType | null;
   userId: string | null;
 }
 
 export default function TweakItem({
   tweak,
   categoryName,
+  tweakType,
   tweakID,
   userId,
 }: TweakItemProps) {
   const [isBookmarkLoading, setisBookmarkLoading] = useState(false);
-  const isSavedByUser = userId && tweak.savedUsers?.includes(userId);
-  const router = useRouter();
+  const [isSavedByUser, setIsSavedByUser] = useState(
+    userId && tweak.savedUsers?.includes(userId)
+  );
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
 
     await TweaksService.toggleSaveTweak(tweakID)
-      .then(() => {
-        tweak.savedUsers = isSavedByUser
-          ? (tweak.savedUsers || []).filter((id) => id !== userId)
-          : userId
-            ? [...(tweak.savedUsers || []), userId]
-            : tweak.savedUsers || [];
-      })
+      .then(() => setIsSavedByUser(!isSavedByUser))
       .catch((error) =>
         error instanceof Error ? error.message : toast.error(`Unknown Error`)
       )
@@ -66,6 +62,11 @@ export default function TweakItem({
                   {categoryName}
                 </p>
               </Box>
+            )}
+            {tweakType && (
+              <h1 className="text-muted-foreground text-xs  px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
+                {tweakType}
+              </h1>
             )}
           </div>
           <Button

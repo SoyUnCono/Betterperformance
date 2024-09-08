@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/tooltip";
 import { db } from "@/lib/db";
 import RegeditEditorForm from "./_components/Forms/RegeditEditorForm";
+import { TweakType } from "@prisma/client";
 
 interface TweaksDetailProps {
   tweakID: string;
@@ -97,14 +98,14 @@ export default async function TweaksDetailPage({
               </TooltipProvider>
             </div>
             <span className="text-sm text-neutral-500">
-              You need to complete ({completionText}) to continue. regedit:
+              You need to complete ({completionText}) to continue.
             </span>
           </div>
         </div>
         <TweaksPublishActions
           tweakID={params.tweakID}
           isPublished={tweak.isPublished}
-          disabled={!isCompleted}
+          isDisabled={!isCompleted}
         />
       </div>
       {!tweak.isPublished && (
@@ -138,7 +139,11 @@ export default async function TweaksDetailPage({
             <IconBagde icon={FilePenLine} />
             <h2 className="text-xl text-neutral-700">Regedits Information</h2>
           </div>
-          <RegeditEditorForm tweakID={params.tweakID} initialData={tweak} />
+          <RegeditEditorForm
+            tweakID={params.tweakID}
+            initialData={tweak}
+            tweakType={tweak.tweak_type || ""}
+          />
         </div>
       </div>
     </>

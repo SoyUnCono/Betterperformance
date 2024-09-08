@@ -9,7 +9,7 @@ interface PageContentProps {
   userId: string | null;
 }
 
-export default function PageContent({ tweak }: PageContentProps) {
+export default function PageContent({ tweak, userId }: PageContentProps) {
   if (tweak.length === 0) {
     return (
       <div className="flex items-center justify-center flex-col">
@@ -36,8 +36,9 @@ export default function PageContent({ tweak }: PageContentProps) {
             key={tweakItem.id}
             tweakID={tweakItem.id}
             tweak={tweakItem}
-            userId={tweakItem.userId || "User Not Found"}
+            userId={userId || "User Not Found"}
             categoryName={tweakItem.category?.name || "Undefined"}
+            tweakType={tweakItem.tweak_type || null}
           />
         ))}
       </div>

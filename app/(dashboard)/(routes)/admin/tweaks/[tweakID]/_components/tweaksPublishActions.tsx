@@ -17,12 +17,14 @@ import toast from "react-hot-toast";
 
 interface TweaksPublishActionsProps {
   tweakID: string;
+  isDisabled: boolean;
   isPublished: boolean;
 }
 
 export default function TweaksPublishActions({
   tweakID,
   isPublished,
+  isDisabled,
 }: TweaksPublishActionsProps) {
   const [isLoading, setisLoading] = useState(false);
   const [isDeleteLoading, setisDeleteLoading] = useState(false);
@@ -78,7 +80,7 @@ export default function TweaksPublishActions({
     <div className="flex items-center gap-x-1">
       <LoadingButton
         variant={"outline"}
-        disabled={isLoading}
+        disabled={isLoading || isDisabled}
         showLoadingText={true}
         isSubmitting={isLoading}
         onClick={onPublish}
