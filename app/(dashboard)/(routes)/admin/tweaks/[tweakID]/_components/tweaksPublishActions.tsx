@@ -37,7 +37,7 @@ export default function TweaksPublishActions({
         .then(() => toast.success("The tweak its now Hide!"))
         .catch((error) => {
           toast.error(
-            "There was an error publishing the tweak. Please try again."
+            "There was an  error publishing the tweak. Please try again."
           );
         })
         .finally(() => {
