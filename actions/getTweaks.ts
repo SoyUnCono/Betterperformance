@@ -13,7 +13,6 @@ export const getTweaks = async ({
   title,
   categoryId,
   author,
-  createdAt,
 }: GetTweaks): Promise<Tweak[]> => {
   const { userId } = auth();
 
@@ -29,6 +28,32 @@ export const getTweaks = async ({
         createdAt: "desc",
       },
     };
+
+    if (
+      typeof title !== "undefined" ||
+      typeof categoryId !== "undefined" ||
+      typeof author !== "undefined"
+    ) {
+      query.where = {
+        AND: [
+          typeof title !== "undefined" && {
+            title: {
+              contains: title,
+              mode: "insensitive",
+            },
+          },
+          typeof author !== "undefined" && {
+            author: {
+              contains: author,
+              mode: "insensitive",
+            },
+          },
+          typeof categoryId !== "undefined" && {
+            categoryId: categoryId,
+          },
+        ].filter(Boolean),
+      };
+    }
 
     const tweak = await db.tweak.findMany(query);
     return tweak;

@@ -114,7 +114,7 @@ export default function TweakItem({
           <div className="w-full gap-y-4">
             <p className="font-semibold text-base w-full truncate">
               {truncate(tweak.title, {
-                length: 35,
+                length: 25,
                 omission: "...",
               })}
             </p>
