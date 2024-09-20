@@ -98,7 +98,7 @@ export default function RegeditEditorForm({
 
       <Form {...form}>
         <form
-          className={cn("space-y-4 mt-4 ", isEditing && "p-4")}
+          className={cn("space-y-4 mt-4 max-h-[34.3rem]", isEditing && "p-4")}
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
@@ -107,26 +107,26 @@ export default function RegeditEditorForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <LineNumberedTextarea
-                    value={field.value}
-                    onChange={field.onChange}
-                    isEditing={isEditing}
-                  />
+                  <>
+                    <LineNumberedTextarea
+                      value={field.value}
+                      onChange={field.onChange}
+                      isEditing={isEditing}
+                    />
+                    {isEditing && (
+                      <LoadingButton
+                        type="submit"
+                        className="absolute bottom-20 right-5"
+                        isSubmitting={isSubmitting}
+                        isValid={isValid}
+                      />
+                    )}
+                  </>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
-          {isEditing && (
-            <div className="flex justify-end items-center">
-              <LoadingButton
-                type="submit"
-                isSubmitting={isSubmitting}
-                isValid={isValid}
-              />
-            </div>
-          )}
         </form>
       </Form>
 

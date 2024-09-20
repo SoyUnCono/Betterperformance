@@ -74,7 +74,7 @@ export default function LineNumberedTextarea({
             spellCheck={false}
             onChange={onInputChange}
             className={cn(
-              "flex-grow border-none  bg-transparent min-h-screen text-muted-foreground text-sm h-screen w-full focus-visible:ring-0 focus-visible:outline-none resize-none",
+              "flex-grow border-none relative z-0 bg-transparent h-[33.3rem] text-muted-foreground text-sm w-full focus-visible:ring-0 focus-visible:outline-none resize-none",
               className
             )}
           />
