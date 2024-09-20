@@ -1,12 +1,47 @@
 "use client";
 
 import { Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
+import qs from "query-string";
 
 export default function SearchContainer() {
-  const [value, setvalue] = useState("");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentTitle = searchParams.get("title");
+  const currentCategoryId = searchParams.get("categoryId");
+  const currentAuthor = searchParams.get("author");
+
+  const [value, setvalue] = useState(currentTitle || "");
+
+  const debounce = useDebounce(value);
+
+  useEffect(() => {
+    const isAuthorSearch = debounce.startsWith("@");
+    const searchQuery = isAuthorSearch
+      ? { author: debounce.substring(1) }
+      : { title: debounce };
+
+    const url = qs.stringifyUrl(
+      {
+        url: pathname,
+        query: {
+          ...searchQuery,
+          categoryId: currentCategoryId,
+        },
+      },
+      {
+        skipEmptyString: true,
+        skipNull: true,
+      }
+    );
+    router.push(url);
+  }, [router, pathname, debounce]);
 
   return (
     <>

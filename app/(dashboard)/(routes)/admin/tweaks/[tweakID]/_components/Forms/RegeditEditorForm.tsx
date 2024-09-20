@@ -69,16 +69,6 @@ export default function RegeditEditorForm({
         toast.error(error instanceof Error ? error.message : "Unknown error")
       )
       .finally(() => router.refresh());
-    console.log(TweakType);
-  };
-
-  const onFileType = async (value: TweakType) => {
-    await TweaksService.changeTweakType(tweakID, value)
-      .then(() => toast.success("Regedit was updated successfully"))
-      .catch((error) =>
-        toast.error(error instanceof Error ? error.message : "Unknown error")
-      )
-      .finally(() => router.refresh());
   };
 
   const toggleEditing = () => setIsEditing((prev) => !prev);
@@ -86,7 +76,7 @@ export default function RegeditEditorForm({
   return (
     <div
       className={cn(
-        "mt-2 flex flex-col border bg-secondary/30 rounded-md  pt-4 h-full  mb-2 ",
+        "mt-2 flex flex-col border bg-secondary/30 rounded-md  pt-4 h-[40rem]  mb-2 ",
         className
       )}
     >
@@ -100,18 +90,6 @@ export default function RegeditEditorForm({
           </p>
         </div>
         <div className="flex gap-x-1">
-          <Select value={tweakType} onValueChange={onFileType}>
-            <SelectTrigger className="w-[130px]">
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.values(TweakType).map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Button onClick={toggleEditing} variant={"outline"}>
             {isEditing ? "Cancel" : <Pencil className="h-4 w-4" />}
           </Button>
@@ -120,7 +98,7 @@ export default function RegeditEditorForm({
 
       <Form {...form}>
         <form
-          className={cn("space-y-4 mt-4", isEditing && "p-4")}
+          className={cn("space-y-4 mt-4 ", isEditing && "p-4")}
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField

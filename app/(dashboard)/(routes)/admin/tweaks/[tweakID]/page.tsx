@@ -20,6 +20,7 @@ import {
 import { db } from "@/lib/db";
 import RegeditEditorForm from "./_components/Forms/RegeditEditorForm";
 import { TweakType } from "@prisma/client";
+import RegeditTypeForm from "./_components/Forms/RegeditTypeForm";
 
 interface TweaksDetailProps {
   tweakID: string;
@@ -143,6 +144,11 @@ export default async function TweaksDetailPage({
             tweakID={params.tweakID}
             initialData={tweak}
             tweakType={tweak.tweak_type || ""}
+          />
+          <RegeditTypeForm
+            tweakID={params.tweakID}
+            initialTweakType={tweak.tweak_type || ""}
+            tweakTypes={TweakType}
           />
         </div>
       </div>

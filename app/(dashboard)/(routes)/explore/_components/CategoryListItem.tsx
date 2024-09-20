@@ -43,7 +43,7 @@ export default function CategoryListItem({
       variant={"outline"}
       className={cn(
         "whitespace-nowrap text-sm tracking-wider text-muted-foreground border px-2 py-[2px] rounded-md hover:bg-secondary/40 hover:text-muted-foreground transition cursor-pointer hover:shadow-md dark:hover:shadow-secondary/30 dark:hover:shadow-md",
-        isSelected ? "bg-secondary/60" : ""
+        isSelected ? "bg-accent" : ""
       )}
     >
       {label}

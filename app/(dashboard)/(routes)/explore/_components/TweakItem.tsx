@@ -7,10 +7,13 @@ import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
   CloudDownload,
+  Crown,
   DownloadCloudIcon,
   Eye,
   HeartIcon,
   Loader2,
+  Router,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +22,12 @@ import TweakTags from "@/components/TweakTags";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
+import { useRouter } from "next/navigation";
+
+// Función para eliminar etiquetas HTML
+const stripHtml = (html: string) => {
+  return html.replace(/<\/?[^>]+(>|$)/g, "");
+};
 
 interface TweakItemProps {
   tweak: Tweak;
@@ -39,6 +48,7 @@ export default function TweakItem({
   const [isSavedByUser, setIsSavedByUser] = useState(
     userId && tweak.savedUsers?.includes(userId)
   );
+  const router = useRouter();
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
@@ -48,7 +58,10 @@ export default function TweakItem({
       .catch((error) =>
         error instanceof Error ? error.message : toast.error(`Unknown Error`)
       )
-      .finally(() => setisBookmarkLoading(false));
+      .finally(() => {
+        setisBookmarkLoading(false);
+        router.refresh();
+      });
   };
 
   return (
@@ -64,7 +77,7 @@ export default function TweakItem({
               </Box>
             )}
             {tweakType && (
-              <h1 className="text-muted-foreground text-xs  px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
+              <h1 className="text-muted-foreground text-xs border  px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
                 {tweakType}
               </h1>
             )}
@@ -101,47 +114,64 @@ export default function TweakItem({
           <div className="w-full gap-y-4">
             <p className="font-semibold text-base w-full truncate">
               {truncate(tweak.title, {
-                length: 35,
+                length: 25,
                 omission: "...",
               })}
             </p>
 
-            <Link
-              href={`/explore/author/${tweak.author}`}
-              className="text-xs
-            w-full truncate hover:text-primary/80"
-            >
-              {tweak.author}
-            </Link>
+            {tweak.short_description && (
+              <div className="text-xs text-muted-foreground">
+                {truncate(tweak.short_description, {
+                  length: 180,
+                  omission: "...",
+                })}
+              </div>
+            )}
           </div>
         </Box>
 
         <Box className="flex items-center justify-start gap-x-6">
           <TweakTags Icon={CloudDownload} Title="405 Downloads" />
-          <TweakTags Icon={HeartIcon} Title="345 Favorites" />
+          <TweakTags
+            Icon={HeartIcon}
+            Title={`${tweak.savedUsers.length} Favorites`}
+          />
           <TweakTags Icon={Eye} Title="490 View" />
         </Box>
 
-        {tweak.short_description && (
+        {tweak.description && (
           <CardDescription className="text-xs">
-            {truncate(tweak.short_description, {
+            {truncate(stripHtml(tweak.description), {
               length: 180,
               omission: "...",
             })}
           </CardDescription>
         )}
 
-        <div className="flex items-center gap-x-2 ">
-          <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0" />
-          <p className="text-xs text-muted-foreground">
-            {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
-              addSuffix: true,
-            })}`}
-          </p>
+        <div className="flex gap-x-7">
+          {tweak.author && (
+            <Link
+              href={`/tweaker/${tweak.author}`}
+              className="text-sm text-muted-foreground bg-accent  p-2 rounded-md hover:bg-accent/80 border"
+            >
+              <div className="flex items-center gap-x-1">
+                <Crown className="h-4 w-4" />
+                <p>{tweak.author}</p>
+              </div>
+            </Link>
+          )}
+          <div className="flex items-center gap-x-2 ">
+            <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0 top-0 justify-items-center" />
+            <p className="text-xs text-muted-foreground ">
+              {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
+                addSuffix: true,
+              })}`}
+            </p>
+          </div>
         </div>
 
         <Box className="gap-2 mt-auto">
-          <Link href={`/search/${tweak.id}`} className="w-full">
+          <Link href={`/search/${tweak.id}`} className="w-full ">
             <Button className="w-full bg-background/40" variant={"outline"}>
               Details
             </Button>
