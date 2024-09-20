@@ -39,7 +39,7 @@ export default function LineNumberedTextarea({
   }, [textAreaRef]);
 
   return (
-    <div className="mb-2 mt-2 relative flex max-h-[75vh] min-h-[75vh]">
+    <div className="mb-2 mt-2 relative flex max-h-[34.3rem]">
       {!isEditing ? (
         <div
           id="highlighted-content"
@@ -74,7 +74,7 @@ export default function LineNumberedTextarea({
             spellCheck={false}
             onChange={onInputChange}
             className={cn(
-              "flex-grow border-none max-h-[75vh] bg-transparent min-h-[75vh] text-muted-foreground text-sm h-full w-full focus-visible:ring-0 focus-visible:outline-none resize-none",
+              "flex-grow border-none  bg-transparent min-h-screen text-muted-foreground text-sm h-screen w-full focus-visible:ring-0 focus-visible:outline-none resize-none",
               className
             )}
           />

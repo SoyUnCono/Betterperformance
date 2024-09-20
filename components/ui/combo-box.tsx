@@ -22,21 +22,31 @@ import { ListItem } from "./list-item";
 
 interface ComboboxProps {
   options: { label: string; value: string }[];
+  isUsedByAnotherChildren?: boolean;
   value?: string;
   onChange: (value: string) => void;
-  heading: string
+  heading: string;
 }
 
-export const ComboBox = ({ options, value, onChange, heading }: ComboboxProps) => {
+export const ComboBox = ({
+  options,
+  value,
+  onChange,
+  heading,
+  isUsedByAnotherChildren,
+}: ComboboxProps) => {
   const [open, setOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const [filtered, setFiltered] = React.useState<{ label: string; value: string }[]>([]);
+  const [filtered, setFiltered] = React.useState<
+    { label: string; value: string }[]
+  >([]);
 
   const handleSearchTerm = (e: any) => {
     setSearchTerm(e.target.value);
     setFiltered(
       options.filter((item) =>
-        item.label.toLowerCase().includes(searchTerm.toLowerCase()))
+        item.label.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     );
   };
 
@@ -58,13 +68,17 @@ export const ComboBox = ({ options, value, onChange, heading }: ComboboxProps) =
       <PopoverContent className="w-full p-0 md:min-w-96 ">
         <Command>
           <div className="w-full px-2 py-1 items-center border rounded-md">
-            <div className="flex items-center gap-x-3 truncate p-3">
-              <Search className="mr-2 h-4 w-4 min-w-4" />
-              <input type="text"
-                placeholder="Search Category"
-                onChange={handleSearchTerm}
-                className="flex-1 w-full outline-none text-sm py-1 bg-transparent" />
-            </div>
+            {!isUsedByAnotherChildren && (
+              <div className="flex items-center gap-x-3 truncate p-3">
+                <Search className="mr-2 h-4 w-4 min-w-4" />
+                <input
+                  type="text"
+                  placeholder="Search Category"
+                  onChange={handleSearchTerm}
+                  className="flex-1 w-full outline-none text-sm py-1 bg-transparent"
+                />
+              </div>
+            )}
             <CommandList>
               <CommandGroup heading={heading}>
                 {searchTerm === "" ? (
