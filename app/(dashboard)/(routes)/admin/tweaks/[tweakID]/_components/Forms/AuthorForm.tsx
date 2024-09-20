@@ -21,31 +21,64 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import { LoadingButton } from "@/components/LoadingButton";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useUser } from "@clerk/nextjs";
+import { Label } from "@/components/ui/label";
 
 interface AuthorFormProps {
   initialData: Tweak;
   tweakID: string;
 }
 
-const formScheme = z.object({
-  author: z.string().min(1),
-});
+const formScheme = z
+  .object({
+    author: z.string().optional(),
+    useClerkAuth: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      !data.useClerkAuth &&
+      (!data.author || data.author.trim().length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Author is required when not using Clerk authentication",
+        path: ["author"],
+      });
+    }
+  });
 
 export default function AuthorForm({ initialData, tweakID }: AuthorFormProps) {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  const { user } = useUser();
 
   const form = useForm<z.infer<typeof formScheme>>({
     resolver: zodResolver(formScheme),
     defaultValues: {
       author: initialData?.author || "",
+      useClerkAuth: false,
     },
+    mode: "onChange",
   });
 
-  const { isSubmitting, isValid } = form.formState;
+  const { isSubmitting } = form.formState;
+  const useClerkAuth = form.watch("useClerkAuth");
+  const author = form.watch("author");
+
+  const isFormValid = useClerkAuth || (!!author && author.trim().length > 0);
 
   const onSubmit = async (values: z.infer<typeof formScheme>) => {
-    await TweaksService.updateTweak(tweakID, values)
+    const authorValue = values.useClerkAuth
+      ? user?.username || ""
+      : values.author;
+
+    if (!authorValue) {
+      toast.error("Could not obtain a valid author name");
+      return;
+    }
+
+    await TweaksService.updateTweak(tweakID, { author: authorValue })
       .then(() => {
         toggleEditing();
         toast.success("The Tweak has been updated successfully!");
@@ -83,13 +116,31 @@ export default function AuthorForm({ initialData, tweakID }: AuthorFormProps) {
           >
             <FormField
               control={form.control}
+              name="useClerkAuth"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <Label>Use Clerk authentication</Label>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="author"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input
-                      placeholder="e.g 'Pedro García Lopez'"
-                      disabled={isSubmitting}
+                      placeholder="e.g 'John Doe'"
+                      disabled={isSubmitting || form.watch("useClerkAuth")}
                       {...field}
                     />
                   </FormControl>
@@ -101,7 +152,7 @@ export default function AuthorForm({ initialData, tweakID }: AuthorFormProps) {
             <div className="flex items-center gap-x-2">
               <LoadingButton
                 isSubmitting={isSubmitting}
-                isValid={isValid}
+                isValid={isFormValid}
                 type="submit"
               />
             </div>

@@ -1,10 +1,7 @@
-import { currentUser } from "@clerk/nextjs/server"
+import { currentUser } from "@clerk/nextjs/server";
 
-export default function Account() {
-const UserData = currentUser();
+export default async function Account() {
+  const UserData = await currentUser();
 
-
-return <div>
-    
-</div>
+  return <div>{UserData?.username}</div>;
 }

@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Package2 } from "lucide-react";
 import Image from "next/image";
 
 export default function Logo({ className }: { className?: string }) {
