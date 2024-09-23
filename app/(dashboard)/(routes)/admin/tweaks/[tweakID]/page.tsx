@@ -147,8 +147,7 @@ export default async function TweaksDetailPage({
           />
           <RegeditTypeForm
             tweakID={params.tweakID}
-            initialTweakType={tweak.tweak_type || ""}
-            tweakTypes={TweakType}
+            initialTweakType={tweak.tweak_type || null}
           />
         </div>
       </div>

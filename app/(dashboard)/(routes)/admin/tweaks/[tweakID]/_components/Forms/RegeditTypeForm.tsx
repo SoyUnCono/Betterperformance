@@ -38,6 +38,7 @@ const tweakTypeOptions = [
   { label: "PowerShell", value: TweakType.PowerShell },
   { label: "VBScript", value: TweakType.VBScript },
 ];
+
 export default function RegeditTypeForm({
   initialTweakType,
   tweakID,

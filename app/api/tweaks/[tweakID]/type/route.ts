@@ -2,18 +2,17 @@ import { NextResponse } from "next/server";
 import { TweakType } from "@prisma/client";
 import { db } from "@/lib/db";
 
-export const PATCH = async (
+export async function PATCH(
   req: Request,
   { params }: { params: { tweakID: string } }
-) => {
+) {
   try {
     const { tweakID } = params;
     const tweakType = await req.text();
 
-    const validTypes = ["BATCH", "REGISTRY", "POWERSHELL", "VBSCRIPT"];
-    if (!validTypes.includes(tweakType.toUpperCase())) {
+    if (!tweakType || !Object.values(TweakType).includes(tweakType as TweakType)) {
       return NextResponse.json(
-        { error: "Tipo de tweak no válido" },
+        { error: "Invalid tweak type" },
         { status: 400 }
       );
     }
@@ -25,11 +24,11 @@ export const PATCH = async (
       },
     });
 
-    return NextResponse.json(updatedTweak, { status: 200 });
+    return NextResponse.json(updatedTweak);
   } catch (error) {
     return NextResponse.json(
-      { error: "Error actualizando el tweak" },
+      { error: "Error updating tweak" },
       { status: 500 }
     );
   }
-};
+}

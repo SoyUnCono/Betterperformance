@@ -33,7 +33,7 @@ export default async function Admin() {
     isPublished: tweak.isPublished,
   }));
 
-  return (
+return (
     <div className="mt-6 p-6">
       <DataTable data={formattedTweaks} columns={columns} searchKey="title" />
     </div>
