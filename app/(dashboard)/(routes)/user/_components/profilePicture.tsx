@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Camera } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
 
 interface ProfilePictureProps {
   imageURL: string;
@@ -12,13 +13,28 @@ interface ProfilePictureProps {
 export default function ProfilePicture({ imageURL }: ProfilePictureProps) {
   const [avatarSrc, setAvatarSrc] = useState(imageURL);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useClerk();
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => setAvatarSrc(e.target?.result as string);
+    reader.onload = async (e) => {
+      const newAvatarSrc = e.target?.result as string;
+      setAvatarSrc(newAvatarSrc);
+
+      const blob = new Blob([file], { type: file.type });
+      const fileData = new File([blob], file.name, { type: file.type });
+
+      try {
+        await user?.setProfileImage({ file: fileData });
+      } catch (error) {
+        console.error("Error updating profile picture:", error);
+      }
+    };
     reader.readAsDataURL(file);
   };
 
