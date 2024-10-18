@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import dynamic from "next/dynamic";
 import { UsernameForm } from "./_components/Forms/usernameForm";
 import { db } from "@/lib/db";
+import { EmailForm } from "./_components/Forms/emailForm";
 
 const ProfilePicture = dynamic(
   () => import("./_components/profilePicture").then((mod) => mod.default),
@@ -38,7 +39,10 @@ export default async function User() {
           </div>
         )}
 
-        <UsernameForm initialData={userProfile} userId={userId} />
+        <div className="flex flex-col mt-2 w-full">
+          <UsernameForm initialData={userProfile} userId={userId} />
+          <EmailForm initialData={userProfile} userId={userId} />
+        </div>
       </Box>
     </div>
   );
