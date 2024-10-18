@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { UsernameForm } from "./_components/Forms/usernameForm";
 import { db } from "@/lib/db";
 import { EmailForm } from "./_components/Forms/emailForm";
+import { LogoutButton } from "@/components/LogoutButton";
 
 const ProfilePicture = dynamic(
   () => import("./_components/profilePicture").then((mod) => mod.default),
@@ -29,8 +30,9 @@ export default async function User() {
 
   return (
     <div className="flex-col items-center justify-center flex p-4 md:p-8">
-      <Box>
+      <Box className="flex justify-between">
         <CustomBreadCrump breadCrumpPage="Account" />
+        <LogoutButton />
       </Box>
       <Box className="flex flex-col p-4 rounded-md border mt-8 w-full space-y-6">
         {user && user.hasImage && (
