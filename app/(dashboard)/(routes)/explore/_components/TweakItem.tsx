@@ -24,7 +24,6 @@ import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 import { useRouter } from "next/navigation";
 
-// Función para eliminar etiquetas HTML
 const stripHtml = (html: string) => {
   return html.replace(/<\/?[^>]+(>|$)/g, "");
 };
@@ -131,12 +130,12 @@ export default function TweakItem({
         </Box>
 
         <Box className="flex items-center justify-start gap-x-6">
-          <TweakTags Icon={CloudDownload} Title="405 Downloads" />
+          <TweakTags Icon={CloudDownload} Title={`${tweak.downloadCount}`} />
           <TweakTags
             Icon={HeartIcon}
             Title={`${tweak.savedUsers.length} Favorites`}
           />
-          <TweakTags Icon={Eye} Title="490 View" />
+          <TweakTags Icon={Eye} Title={`${tweak.viewCount}`} />
         </Box>
 
         {tweak.description && (

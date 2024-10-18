@@ -1,16 +1,13 @@
 import axios from "axios";
 
-interface UpdateUsernamePayload {
-  username: string;
-}
-
 export const UserService = {
-  async updateUsername(data: UpdateUsernamePayload): Promise<void> {
+  updateUsername: async (userId: string, values: any) => {
     try {
-      const response = await axios.put("/api/user/update-username", data);
+      const response = await axios.patch(`/api/user/${userId}`, values);
       return response.data;
-    } catch (error: Error) {
-      throw new Error(error.response?.data?.message || "Error desconocido");
+    } catch (error) {
+      console.log(`Error updating username: ${error}`);
+      throw error;
     }
   },
 };

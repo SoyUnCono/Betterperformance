@@ -12,62 +12,70 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { UserProfile } from "@prisma/client";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
+import { useClerk } from "@clerk/nextjs";
 
 interface UsernameFormProps {
-  initialData: {
-    username: string;
-  };
+  initialData: UserProfile | null;
+  userId: string;
 }
 
 const formScheme = z.object({
   username: z.string().min(1),
 });
 
-export function UsernameForm({ initialData }: UsernameFormProps) {
-  const [isEditing, setisEditing] = useState(false);
+export function UsernameForm({ initialData, userId }: UsernameFormProps) {
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  const { user } = useClerk();
 
   const form = useForm<z.infer<typeof formScheme>>({
     resolver: zodResolver(formScheme),
-    defaultValues: initialData,
+    defaultValues: {
+      username: initialData?.username || "",
+    },
   });
 
   const { isSubmitting, isValid } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formScheme>) => {
-    await UserService.updateUsername(values)
-      .then(() => {
+    await user
+      ?.update({ username: values.username })
+      .then(async () => {
+        await UserService.updateUsername(userId, values);
         toggleEditing();
-        toast.success("Username has been updated successfully!");
       })
-      .catch((error) => {
-        toast.error(
-          `An error occurred while updating the data: ${error instanceof Error ? error.message : "Unknown error"}`
-        );
+      .catch((error: any) => {
+        const errorMessage =
+          error?.errors?.[0]?.message ||
+          `An error has occurred while trying to update the username: ${error}`;
+        toast.error(errorMessage);
       })
-      .finally(() => router.refresh());
+      .finally(() => {
+        router.refresh();
+      });
   };
 
-  const toggleEditing = () => setisEditing((current) => !current);
+  const toggleEditing = () => setIsEditing((current) => !current);
 
   return (
     <div className="mt-2 border bg-secondary/30 rounded-md p-4 w-full">
       <div className="font-medium flex items-center justify-between">
         Username
-        <Button onClick={toggleEditing} variant={"outline"}>
+        <Button onClick={toggleEditing} variant="outline">
           {isEditing ? <>Cancel</> : <Pencil className="h-4 w-4" />}
         </Button>
       </div>
 
       {!isEditing && (
         <p className="text-sm text-muted-foreground overflow-clip">
-          {initialData.username}
+          {initialData?.username}
         </p>
       )}
 
@@ -86,7 +94,7 @@ export function UsernameForm({ initialData }: UsernameFormProps) {
                     <div>
                       <Input
                         disabled={isSubmitting}
-                        placeholder={`${initialData.username}`}
+                        placeholder={`${initialData?.username}`}
                         {...field}
                       />
                     </div>

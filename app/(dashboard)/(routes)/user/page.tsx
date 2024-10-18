@@ -4,19 +4,27 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import dynamic from "next/dynamic";
 import { UsernameForm } from "./_components/Forms/usernameForm";
+import { db } from "@/lib/db";
 
 const ProfilePicture = dynamic(
   () => import("./_components/profilePicture").then((mod) => mod.default),
   { ssr: false }
 );
 
-export default async function Account() {
+export default async function User() {
   const { userId } = auth();
-  const user = await currentUser();
 
   if (!userId) {
     redirect("/sign-in");
   }
+
+  const user = await currentUser();
+
+  let userProfile = await db.userProfile.findUnique({
+    where: {
+      userId,
+    },
+  });
 
   return (
     <div className="flex-col items-center justify-center flex p-4 md:p-8">
@@ -30,7 +38,7 @@ export default async function Account() {
           </div>
         )}
 
-        <UsernameForm initialData={{ username: user?.username || "" }} />
+        <UsernameForm initialData={userProfile} userId={userId} />
       </Box>
     </div>
   );
