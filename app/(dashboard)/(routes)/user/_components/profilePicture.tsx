@@ -5,6 +5,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Camera } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
+import toast from "react-hot-toast";
 
 interface ProfilePictureProps {
   imageURL: string;
@@ -15,27 +16,35 @@ export default function ProfilePicture({ imageURL }: ProfilePictureProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useClerk();
 
-  const handleImageChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (e) => {
-      const newAvatarSrc = e.target?.result as string;
-      setAvatarSrc(newAvatarSrc);
 
-      const blob = new Blob([file], { type: file.type });
-      const fileData = new File([blob], file.name, { type: file.type });
+    const readFile = new Promise<string>((resolve, reject) => {
+      reader.onload = () => {
+        const newAvatarSrc = reader.result as string;
+        resolve(newAvatarSrc);
+      };
+      reader.onerror = () => {
+        reject(new Error("Error reading file"));
+      };
+      reader.readAsDataURL(file);
+    });
 
-      try {
-        await user?.setProfileImage({ file: fileData });
-      } catch (error) {
-        console.error("Error updating profile picture:", error);
-      }
-    };
-    reader.readAsDataURL(file);
+    readFile
+      .then(async (newAvatarSrc) => {
+        setAvatarSrc(newAvatarSrc);
+        await user?.setProfileImage({ file }).catch((error: any) => {
+          console.error("Error updating profile picture:", error);
+          toast.error(`Error updating profile picture: ${error}`);
+        });
+      })
+      .catch((error) => {
+        toast.error(`Error reading file: ${error}`);
+        console.error("Error reading file:", error);
+      });
   };
 
   const handleButtonClick = () => fileInputRef.current?.click();
