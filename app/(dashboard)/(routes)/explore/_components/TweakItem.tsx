@@ -23,6 +23,16 @@ import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import TweaksDetailModel from "../[tweakID]/TweaksDetailModel";
 
 const stripHtml = (html: string) => {
   return html.replace(/<\/?[^>]+(>|$)/g, "");
@@ -170,11 +180,22 @@ export default function TweakItem({
         </div>
 
         <Box className="gap-2 mt-auto">
-          <Link href={`/search/${tweak.id}`} className="w-full ">
-            <Button className="w-full bg-background/40" variant={"outline"}>
-              Details
-            </Button>
-          </Link>
+          <AlertDialog>
+            <AlertDialogTrigger>
+              <Button className="w-full bg-background/40" variant={"outline"}>
+                Details
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className=" md:max-w-7xl w-full  overflow-y-auto max-h-[100vh] lg:max-h-[85vh]">
+              <AlertDialogCancel className="w-28">Cancel</AlertDialogCancel>
+              <TweaksDetailModel
+                categorie={categoryName}
+                tweak={tweak}
+                tweakID={tweakID}
+                userId={userId || ""}
+              />
+            </AlertDialogContent>
+          </AlertDialog>
           <Button
             className="w-full bg-background flex items-center gap-x-2"
             variant={"outline"}
