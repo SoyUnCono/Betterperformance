@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tweak } from "@prisma/client";
+import EditorPreview from "../../../admin/tweaks/[tweakID]/_components/Editor/EditorPreview";
 
 interface TweakDescriptionProps {
   tweak: Tweak;
@@ -15,7 +16,10 @@ const TweakDescription: React.FC<TweakDescriptionProps> = ({ tweak }) => {
           {tweak.short_description}
         </h3>
         <Separator />
-        <p className="mt-2 text-muted-foreground">{tweak.description}</p>
+
+        <div className="mt-2 ">
+          <EditorPreview value={tweak.description || ""} />
+        </div>
       </CardContent>
     </Card>
   );

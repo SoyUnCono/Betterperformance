@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tweak } from "@prisma/client";
 import {
   AlertTriangle,
+  BadgeAlertIcon,
   DownloadCloud,
   Heart,
   HeartIcon,
@@ -88,30 +89,29 @@ export default function TweaksDetailModel({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4">
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    isSavedByUser &&
-                      "dark:bg-red-700 dark:hover:bg-red-600 bg-red-600 hover:bg-red-500 text-white border-none hover:text-white"
-                  )}
-                  onClick={onSavedToCollection}
-                >
-                  {isBookmarkLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <div className=" flex items-center p-2 gap-x-2">
+              <div className="flex flex-col gap-y-2">
+                <div className="flex  gap-1">
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      isSavedByUser &&
+                        "dark:bg-red-700 dark:hover:bg-red-600 bg-red-600 hover:bg-red-500 text-white border-none hover:text-white",
+                      "px-2 w-12"
+                    )}
+                    onClick={onSavedToCollection}
+                  >
+                    {isBookmarkLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
                       <HeartIcon className="w-4 h-4" />
-                      {isSavedByUser ? (
-                        <p>Remove Favorite</p>
-                      ) : (
-                        <p> Add Favorite</p>
-                      )}
-                    </div>
-                  )}
-                </Button>
-                <Button variant="secondary" className="w-full">
-                  <DownloadCloud className="mr-2 h-4 w-4" /> Download
+                    )}
+                  </Button>
+                  <Button variant="secondary" className="w-full">
+                    <DownloadCloud className="mr-2 h-4 w-4" /> Download
+                  </Button>
+                </div>
+                <Button variant="outline" className="w-full">
+                  <BadgeAlertIcon className="mr-2 h-4 w-4" /> Report a problem
                 </Button>
               </div>
             </div>
