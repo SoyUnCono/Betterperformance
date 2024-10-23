@@ -20,6 +20,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import TweakDescription from "./_components/TweakDescription";
+import { useViewCount } from '@/app/(dashboard)/hooks/useViewCount';
 
 interface TweaksDetailProps {
   tweak: Tweak;
@@ -38,36 +39,9 @@ export default function TweaksDetailModel({
   const [isSavedByUser, setIsSavedByUser] = useState(
     userId && tweak.savedUsers?.includes(userId)
   );
-  const [viewCount, setViewCount] = useState(Number(tweak.viewCount) || 0);
+  const viewCount = useViewCount(tweakID, Number(tweak.viewCount) || 0);
 
   const router = useRouter();
-
-  const incrementViewCount = useCallback(() => {
-    TweaksService.incrementViewCount(tweakID)
-      .then((updatedTweak) => {
-        setViewCount((prevCount) => {
-          const newCount = Number(updatedTweak.viewCount) || 0;
-          return newCount > prevCount ? newCount : prevCount;
-        });
-      })
-      .finally(() => router.refresh())
-      .catch((error) => {
-        console.error("Failed to increment view count:", error);
-        toast.error("Failed to update view count. Please try again later.");
-      });
-  }, [tweakID]);
-
-  const debouncedIncrementViewCount = useCallback(
-    debounce(incrementViewCount, 300),
-    [incrementViewCount]
-  );
-
-  useEffect(() => {
-    debouncedIncrementViewCount();
-    return () => {
-      debouncedIncrementViewCount.cancel();
-    };
-  }, [debouncedIncrementViewCount]);
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
