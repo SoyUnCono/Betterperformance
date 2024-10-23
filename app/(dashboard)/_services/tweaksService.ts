@@ -77,4 +77,13 @@ export const TweaksService = {
       throw error;
     }
   },
+
+  incrementViewCount: (tweakId: string) => {
+    return axios.patch(`/api/tweaks/${tweakId}/view`)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error incrementing view count:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.error || 'Failed to increment view count');
+      });
+  },
 };

@@ -12,7 +12,8 @@ import {
   HeartIcon,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import debounce from "lodash/debounce";
 import TweakPreview from "./_components/TweakPreview";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 import toast from "react-hot-toast";
@@ -37,8 +38,36 @@ export default function TweaksDetailModel({
   const [isSavedByUser, setIsSavedByUser] = useState(
     userId && tweak.savedUsers?.includes(userId)
   );
+  const [viewCount, setViewCount] = useState(Number(tweak.viewCount) || 0);
 
   const router = useRouter();
+
+  const incrementViewCount = useCallback(() => {
+    TweaksService.incrementViewCount(tweakID)
+      .then((updatedTweak) => {
+        setViewCount((prevCount) => {
+          const newCount = Number(updatedTweak.viewCount) || 0;
+          return newCount > prevCount ? newCount : prevCount;
+        });
+      })
+      .finally(() => router.refresh())
+      .catch((error) => {
+        console.error("Failed to increment view count:", error);
+        toast.error("Failed to update view count. Please try again later.");
+      });
+  }, [tweakID]);
+
+  const debouncedIncrementViewCount = useCallback(
+    debounce(incrementViewCount, 300),
+    [incrementViewCount]
+  );
+
+  useEffect(() => {
+    debouncedIncrementViewCount();
+    return () => {
+      debouncedIncrementViewCount.cancel();
+    };
+  }, [debouncedIncrementViewCount]);
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
@@ -77,7 +106,7 @@ export default function TweaksDetailModel({
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {tweak.viewCount.toLocaleString()}
+                    {viewCount.toLocaleString()}
                   </p>
                   <p className="text-sm">Views</p>
                 </div>

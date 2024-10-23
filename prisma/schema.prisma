@@ -22,7 +22,7 @@ model Tweak {
   regedit           String?
   tweak_type        TweakType?
   isPublished       Boolean    @default(false)
-  viewCount         Int        @default(0)
+  viewCount         BigInt     @default(0)
   downloadCount     Int        @default(0)
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @default(now())
