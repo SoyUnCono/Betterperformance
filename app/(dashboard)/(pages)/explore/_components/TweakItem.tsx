@@ -44,6 +44,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import ToggleFavoriteButton from "@/components/ToggleFavoriteButton";
 
 interface TweakItemProps {
   tweak: Tweak;
@@ -60,26 +61,6 @@ export default function TweakItem({
   tweakID,
   userId,
 }: TweakItemProps) {
-  const [isBookmarkLoading, setisBookmarkLoading] = useState(false);
-  const [isSavedByUser, setIsSavedByUser] = useState(
-    userId && tweak.savedUsers?.includes(userId)
-  );
-  const router = useRouter();
-
-  const onSavedToCollection = async () => {
-    setisBookmarkLoading(true);
-
-    await TweaksService.toggleSaveTweak(tweakID)
-      .then(() => setIsSavedByUser(!isSavedByUser))
-      .catch((error) =>
-        error instanceof Error ? error.message : toast.error(`Unknown Error`)
-      )
-      .finally(() => {
-        setisBookmarkLoading(false);
-        router.refresh();
-      });
-  };
-
   return (
     <Card className="border-none">
       <div className="w-full h-full bg-secondary/20 border rounded-md p-4 flex flex-col items-start  justify-start gap-y-4">
@@ -98,21 +79,11 @@ export default function TweakItem({
               </h1>
             )}
           </div>
-          <Button
-            variant={"outline"}
-            size={"icon"}
-            className={cn(
-              isSavedByUser &&
-                "dark:bg-red-700 dark:hover:bg-red-600 bg-red-600 hover:bg-red-500 text-white border-none hover:text-white"
-            )}
-            onClick={onSavedToCollection}
-          >
-            {isBookmarkLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <HeartIcon className="w-4 h-4" />
-            )}
-          </Button>
+          <ToggleFavoriteButton
+            tweak={tweak}
+            userId={userId}
+            tweakID={tweakID}
+          />
         </Box>
         <Box className="items-center justify-start gap-x-4">
           <div className="w-12 h-12 min-w-12 min-h-12 flex items-center overflow-hidden">
@@ -188,7 +159,7 @@ export default function TweakItem({
 
         <Box className="gap-2 mt-auto">
           <Dialog>
-            <DialogTrigger>
+            <DialogTrigger asChild>
               <Button className="w-full bg-background/40" variant={"outline"}>
                 Details
               </Button>

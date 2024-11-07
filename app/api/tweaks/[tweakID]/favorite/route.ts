@@ -22,14 +22,12 @@ export const PATCH = async (
     const isSavedByUser = tweak.savedUsers.includes(userId);
     const updatedSavedUsers = isSavedByUser
       ? tweak.savedUsers.filter((savedUserId) => savedUserId !== userId)
-      : [...tweak.savedUsers, userId];
+      : [...tweak.savedUsers, userId]; 
 
     const updatedTweak = await db.tweak.update({
       where: { id: tweakID },
       data: {
-        savedUsers: {
-          set: updatedSavedUsers,
-        },
+        savedUsers: updatedSavedUsers, 
       },
     });
 

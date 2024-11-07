@@ -27,6 +27,7 @@ import TweakDescription from "./_components/TweakDescription";
 import { useViewCount } from "@/app/(dashboard)/hooks/useViewCount";
 import Image from "next/image";
 import StatDisplay from "./_components/StatDisplay";
+import ToggleFavoriteButton from "@/components/ToggleFavoriteButton";
 
 interface TweaksDetailProps {
   tweak: Tweak;
@@ -41,31 +42,12 @@ export default function TweaksDetailModel({
   categorie,
   userId,
 }: TweaksDetailProps) {
-  const [isBookmarkLoading, setisBookmarkLoading] = useState(false);
-  const [isSavedByUser, setIsSavedByUser] = useState(
-    userId && tweak.savedUsers?.includes(userId)
-  );
   const viewCount = useViewCount(tweakID, Number(tweak.viewCount) || 0);
   const warningMessage = `This tweak is provided solely for
               educational and customization purposes. The sale or commercial
               distribution of this tweak without the express permission of the
               author is strictly prohibited. The use of this tweak is at your
               own risk.`;
-
-  const router = useRouter();
-
-  const onSavedToCollection = async () => {
-    setisBookmarkLoading(true);
-    await TweaksService.toggleSaveTweak(tweakID)
-      .then(() => setIsSavedByUser(!isSavedByUser))
-      .catch((error) =>
-        error instanceof Error ? error.message : toast.error(`Unknown Error`)
-      )
-      .finally(() => {
-        setisBookmarkLoading(false);
-        router.refresh();
-      });
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl overflow-auto h-full">
@@ -99,21 +81,11 @@ export default function TweaksDetailModel({
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">
-              <Button
-                variant={isSavedByUser ? "destructive" : "outline"}
-                className="w-full sm:w-auto"
-                onClick={onSavedToCollection}
-                aria-label={
-                  isSavedByUser ? "Remove from favorites" : "Add to favorites"
-                }
-              >
-                {isBookmarkLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <Heart className="w-4 h-4 mr-2" />
-                )}
-                {isSavedByUser ? "Saved" : "Save"}
-              </Button>
+              <ToggleFavoriteButton
+                tweak={tweak}
+                userId={userId || null}
+                tweakID={tweakID}
+              />
               <Button variant="default" className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" /> Download
               </Button>

@@ -55,8 +55,14 @@ export const getTweaks = async ({
       };
     }
 
-    const tweak = await db.tweak.findMany(query);
-    return tweak;
+    const tweaks = await db.tweak.findMany(query);
+
+    const serializedTweaks = tweaks.map(tweak => ({
+      ...tweak,
+      viewCount: BigInt(tweak.viewCount),
+    }));
+
+    return serializedTweaks;
   } catch (error) {
     console.log("[GET_TWEAKS]:", error);
     return [];

@@ -1,39 +1,34 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function PATCH(
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+export const PATCH = async (
   req: Request,
   { params }: { params: { tweakID: string } }
-) {
-  const { tweakID } = params;
+) => {
+  try {
+    const { tweakID } = params;
+    const { userId } = auth();
 
-  if (!tweakID) {
-    return NextResponse.json({ error: "Tweak ID is required" }, { status: 400 });
-  }
+    if (!userId) return new NextResponse("UserID not found", { status: 404 });
+    if (!tweakID) return new NextResponse("TweakID not found", { status: 404 });
 
-  return db.tweak.update({
-    where: { id: tweakID },
-    data: {
-      viewCount: {
-        increment: 1,
-      },
-    },
-  })
-  .then(updatedTweak => {
-    if (!updatedTweak) {
-      return NextResponse.json({ error: "Tweak not found" }, { status: 404 });
-    }
-    const serializedTweak = {
-      ...updatedTweak,
-      viewCount: Number(updatedTweak.viewCount),
+    const tweak = await db.tweak.findUnique({
+      where: { id: tweakID },
+    });
+
+    if (!tweak) return new NextResponse("Tweak not found", { status: 404 });
+
+    const viewCount = Number(tweak.viewCount);
+    const updatedTweak = {
+      ...tweak,
+      viewCount: viewCount,
     };
-    return NextResponse.json(serializedTweak);
-  })
-  .catch(error => {
-    console.error("Error incrementing view count:", error);
-    return NextResponse.json(
-      { error: "Failed to increment view count" },
-      { status: 500 }
-    );
-  });
-}
+
+    return NextResponse.json(updatedTweak);
+  } catch (error) {
+    console.error(error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+};
