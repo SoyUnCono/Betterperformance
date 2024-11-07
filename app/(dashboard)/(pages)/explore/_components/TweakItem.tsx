@@ -6,6 +6,7 @@ import Box from "@/components/Box";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
+  BadgeAlertIcon,
   CloudDownload,
   Crown,
   DownloadCloudIcon,
@@ -33,10 +34,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import TweaksDetailModel from "../[tweakID]/TweaksDetailModel";
-
-const stripHtml = (html: string) => {
-  return html.replace(/<\/?[^>]+(>|$)/g, "");
-};
+import { stripHtml } from "@/app/(dashboard)/_helper/stripHTML";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface TweakItemProps {
   tweak: Tweak;
@@ -113,7 +120,7 @@ export default function TweakItem({
               <Image
                 width={40}
                 height={40}
-                src={tweak?.icon_url}
+                src={tweak.icon_url || "/placeholder.svg"}
                 alt={tweak?.title}
                 className="object-contain"
               />
@@ -180,22 +187,31 @@ export default function TweakItem({
         </div>
 
         <Box className="gap-2 mt-auto">
-          <AlertDialog>
-            <AlertDialogTrigger>
+          <Dialog>
+            <DialogTrigger>
               <Button className="w-full bg-background/40" variant={"outline"}>
                 Details
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className=" md:max-w-7xl w-full  overflow-y-auto max-h-[100vh] lg:max-h-[85vh]">
-              <AlertDialogCancel className="w-28">Cancel</AlertDialogCancel>
+            </DialogTrigger>
+            <DialogContent className="container mx-auto px-4 py-8 max-w-7xl overflow-y-scroll">
+              <DialogHeader>
+                <DialogTitle>{`${tweak.title} - UniqueID: ${tweakID}`}</DialogTitle>
+                <DialogDescription>{tweak.short_description}</DialogDescription>
+              </DialogHeader>
               <TweaksDetailModel
                 categorie={categoryName}
                 tweak={tweak}
                 tweakID={tweakID}
                 userId={userId || ""}
               />
-            </AlertDialogContent>
-          </AlertDialog>
+              <DialogFooter>
+                <Button variant="outline" className="w-full">
+                  <BadgeAlertIcon className="mr-2 h-4 w-4" /> Report a problem
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
           <Button
             className="w-full bg-background flex items-center gap-x-2"
             variant={"outline"}
