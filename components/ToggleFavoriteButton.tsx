@@ -31,17 +31,15 @@ export default function ToggleFavoriteButton({
 
   const onSavedToCollection = async () => {
     setisBookmarkLoading(true);
-    try {
-      const response = await TweaksService.toggleSaveTweak(tweakID);
-      console.log("Respuesta de la API:", response);
-      setIsSavedByUser(!isSavedByUser);
-    } catch (error) {
-      console.error("[Error al guardar el tweak]:", error);
-      toast.error("Error al guardar el tweak");
-    } finally {
-      setisBookmarkLoading(false);
-      router.refresh();
-    }
+    await TweaksService.toggleSaveTweak(tweakID)
+      .then(() => setIsSavedByUser(!isSavedByUser))
+      .catch((error: Error) => {
+        toast.error("Failed to Save the tweak");
+      })
+      .finally(() => {
+        setisBookmarkLoading(false);
+        router.refresh();
+      });
   };
   return (
     <Button
