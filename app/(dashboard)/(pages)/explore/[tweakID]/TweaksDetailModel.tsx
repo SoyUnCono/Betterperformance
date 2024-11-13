@@ -28,6 +28,7 @@ import { useViewCount } from "@/app/(dashboard)/hooks/useViewCount";
 import Image from "next/image";
 import StatDisplay from "./_components/StatDisplay";
 import ToggleFavoriteButton from "@/components/ToggleFavoriteButton";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface TweaksDetailProps {
   tweak: Tweak;
@@ -42,12 +43,23 @@ export default function TweaksDetailModel({
   categorie,
   userId,
 }: TweaksDetailProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const viewCount = useViewCount(tweakID, Number(tweak.viewCount) || 0);
   const warningMessage = `This tweak is provided solely for
               educational and customization purposes. The sale or commercial
               distribution of this tweak without the express permission of the
               author is strictly prohibited. The use of this tweak is at your
               own risk.`;
+
+  useEffect(() => {
+    if (userId !== null) {
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl overflow-auto h-full">
@@ -66,19 +78,21 @@ export default function TweaksDetailModel({
               <p className="text-muted-foreground">
                 by <span className="font-bold">@{tweak.author}</span>
               </p>
-              <div className="flex justify-center md:justify-start mt-2 space-x-4">
-                <StatDisplay
-                  icon={Star}
-                  value={tweak.savedUsers.length}
-                  label="Favorites"
-                />
-                <StatDisplay icon={Eye} value={viewCount} label="Views" />
-                <StatDisplay
-                  icon={Download}
-                  value={tweak.downloadCount}
-                  label="Downloads"
-                />
-              </div>
+              {userId && (
+                <div className="flex justify-center md:justify-start mt-2 space-x-4">
+                  <StatDisplay
+                    icon={Star}
+                    value={tweak.savedUsers.length}
+                    label="Favorites"
+                  />
+                  <StatDisplay icon={Eye} value={viewCount} label="Views" />
+                  <StatDisplay
+                    icon={Download}
+                    value={tweak.downloadCount}
+                    label="Downloads"
+                  />
+                </div>
+              )}
             </div>
             <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">
               <ToggleFavoriteButton

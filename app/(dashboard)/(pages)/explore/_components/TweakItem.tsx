@@ -23,7 +23,7 @@ import TweakTags from "@/components/TweakTags";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -61,6 +61,10 @@ export default function TweakItem({
   tweakID,
   userId,
 }: TweakItemProps) {
+  if (userId === null) {
+    return <div>Loading user information...</div>;
+  }
+
   return (
     <Card className="border-none">
       <div className="w-full h-full bg-secondary/20 border rounded-md p-4 flex flex-col items-start  justify-start gap-y-4">
@@ -79,11 +83,13 @@ export default function TweakItem({
               </h1>
             )}
           </div>
-          <ToggleFavoriteButton
-            tweak={tweak}
-            userId={userId}
-            tweakID={tweakID}
-          />
+          {userId && (
+            <ToggleFavoriteButton
+              tweak={tweak}
+              userId={userId}
+              tweakID={tweakID}
+            />
+          )}
         </Box>
         <Box className="items-center justify-start gap-x-4">
           <div className="w-12 h-12 min-w-12 min-h-12 flex items-center overflow-hidden">
@@ -173,7 +179,7 @@ export default function TweakItem({
                 categorie={categoryName}
                 tweak={tweak}
                 tweakID={tweakID}
-                userId={userId || ""}
+                userId={userId}
               />
               <DialogFooter>
                 <Button variant="outline" className="w-full">

@@ -36,7 +36,7 @@ export default function PageContent({ tweak, userId }: PageContentProps) {
             key={tweakItem.id}
             tweakID={tweakItem.id}
             tweak={tweakItem}
-            userId={userId || "User Not Found"}
+            userId={userId}
             categoryName={tweakItem.category?.name || "Undefined"}
             tweakType={tweakItem.tweak_type || null}
           />

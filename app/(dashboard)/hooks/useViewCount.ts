@@ -1,10 +1,13 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import debounce from 'lodash/debounce';
-import { toast } from 'react-hot-toast';
-import { TweaksService } from '@/app/(dashboard)/_services/tweaksService';
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import debounce from "lodash/debounce";
+import { toast } from "react-hot-toast";
+import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
 
-export function useViewCount(tweakID: string, initialViewCount: number) {
+export function useViewCount(
+  tweakID: string,
+  initialViewCount: number
+) {
   const [viewCount, setViewCount] = useState(initialViewCount);
   const router = useRouter();
 

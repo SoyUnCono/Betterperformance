@@ -1,5 +1,4 @@
 import { db } from "@/lib/db";
-
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -8,10 +7,10 @@ export const PATCH = async (
   { params }: { params: { tweakID: string } }
 ) => {
   try {
-    const { tweakID } = params;
     const { userId } = auth();
+    if (!userId) return new NextResponse("User not Defined", { status: 404 });
 
-    if (!userId) return new NextResponse("UserID not found", { status: 404 });
+    const { tweakID } = params;
     if (!tweakID) return new NextResponse("TweakID not found", { status: 404 });
 
     const tweak = await db.tweak.findUnique({
@@ -20,15 +19,21 @@ export const PATCH = async (
 
     if (!tweak) return new NextResponse("Tweak not found", { status: 404 });
 
-    const viewCount = Number(tweak.viewCount);
-    const updatedTweak = {
-      ...tweak,
-      viewCount: viewCount,
-    };
+    const viewCount = tweak.viewCount
+      ? BigInt(tweak.viewCount) + BigInt(1)
+      : BigInt(1);
 
-    return NextResponse.json(updatedTweak);
+    const updatedTweak = await db.tweak.update({
+      where: { id: tweakID },
+      data: { viewCount },
+    });
+
+    return NextResponse.json({
+      ...updatedTweak,
+      viewCount: Number(updatedTweak.viewCount),
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error incrementing view count:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 };
