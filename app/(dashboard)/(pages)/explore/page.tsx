@@ -4,7 +4,6 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import CategoriesList from "./_components/CategoriesList";
 import PageContent from "./_components/PageContent";
-import { redirect } from "next/navigation";
 
 interface ExploreProps {
   searchParams: {

@@ -1,6 +1,6 @@
 "use client";
 import { Tweak, TweakType } from "@prisma/client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardDescription } from "@/components/ui/card";
 import Box from "@/components/Box";
 import { formatDistanceToNow } from "date-fns";
@@ -45,6 +45,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ToggleFavoriteButton from "@/components/ToggleFavoriteButton";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface TweakItemProps {
   tweak: Tweak;
@@ -61,8 +62,16 @@ export default function TweakItem({
   tweakID,
   userId,
 }: TweakItemProps) {
-  if (userId === null) {
-    return <div>Loading user information...</div>;
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (userId !== null) {
+      setIsLoading(false);
+    }
+  }, [userId]);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
   return (

@@ -7,10 +7,10 @@ export const PATCH = async (
   { params }: { params: { tweakID: string } }
 ) => {
   try {
-    const { tweakID } = params;
     const { userId } = auth();
-
     if (!userId) return new NextResponse("UserID not found", { status: 404 });
+
+    const { tweakID } = params;
     if (!tweakID) return new NextResponse("TweakID not found", { status: 404 });
 
     const tweak = await db.tweak.findUnique({
@@ -22,18 +22,23 @@ export const PATCH = async (
     const isSavedByUser = tweak.savedUsers.includes(userId);
     const updatedSavedUsers = isSavedByUser
       ? tweak.savedUsers.filter((savedUserId) => savedUserId !== userId)
-      : [...tweak.savedUsers, userId]; 
+      : [...tweak.savedUsers, userId];
 
     const updatedTweak = await db.tweak.update({
       where: { id: tweakID },
       data: {
-        savedUsers: updatedSavedUsers, 
+        savedUsers: updatedSavedUsers,
       },
     });
 
-    return NextResponse.json(updatedTweak);
+    const responseTweak = {
+      id: updatedTweak.id,
+      savedUsers: updatedTweak.savedUsers,
+    };
+
+    return NextResponse.json(responseTweak);
   } catch (error) {
-    console.error(error);
+    console.error("Error toggling save state for tweak:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 };
