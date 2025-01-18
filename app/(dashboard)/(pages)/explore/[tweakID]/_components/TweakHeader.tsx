@@ -19,6 +19,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import CustomBreadCrump from "@/components/CustomBreadCrump";
 
 interface TweakHeaderProps {
   tweak: Tweak;
@@ -34,127 +35,147 @@ export default function TweakHeader({ tweak, categoryName }: TweakHeaderProps) {
 
   if (isMobile) {
     return (
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            size="lg"
-            variant="outline"
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50  rounded-full px-6 bg-background animate-pulse "
-          >
-            <ChevronUp className="h-4 w-4 mr-2" />
-            More Info
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="bottom" className="h-[85vh] rounded-t-[10px]">
-          <div className="space-y-6">
-            {/* Header with Icon and Basic Info */}
-            <div className="flex items-center gap-4">
-              <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-secondary/10">
-                <Image
-                  src={tweak.icon_url || "/placeholder.svg"}
-                  alt={tweak.title}
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-base font-medium">{tweak.title}</h1>
-                <p className="text-sm text-muted-foreground truncate">
-                  {tweak.short_description}
-                </p>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Download className="h-4 w-4" />
-                <span>{tweak.downloadCount}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4" />
-                <span>{tweak.savedUsers.length}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                <span>{tweak.viewCount}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1">
-                <Star className="h-4 w-4 mr-2" />
-                Favorite
-              </Button>
-              <Button className="flex-1 bg-primary">
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-            </div>
-
-            {/* Additional Info */}
-            <div className="space-y-6 pt-4">
-              {/* Author Section */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="/placeholder-avatar.svg" />
-                  <AvatarFallback>
-                    {tweak.author?.[0]?.toUpperCase() || "A"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">
-                    {tweak.author || "Anonymous"}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Author</div>
+      <>
+        <CustomBreadCrump
+          breadCrumpPage={tweak.title}
+          breadCrumpItem={[
+            {
+              link: "/explore",
+              label: "Explore",
+            },
+          ]}
+        />
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              size="lg"
+              variant="outline"
+              className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full px-6 bg-background animate-pulse border-primary"
+            >
+              <ChevronUp className="h-4 w-4 mr-2" />
+              More Info
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[85vh] rounded-t-[10px]">
+            <div className="space-y-6">
+              {/* Header with Icon and Basic Info */}
+              <div className="flex items-center gap-4">
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-secondary/10">
+                  <Image
+                    src={tweak.icon_url || "/placeholder.svg"}
+                    alt={tweak.title}
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-base font-medium">{tweak.title}</h1>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {tweak.short_description}
+                  </p>
                 </div>
               </div>
 
-              {/* Details Grid */}
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Hash className="h-4 w-4 text-primary mt-1" />
+              {/* Stats */}
+              <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Download className="h-4 w-4" />
+                  <span>{tweak.downloadCount}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4" />
+                  <span>{tweak.savedUsers.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  <span>{tweak.viewCount}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button variant="outline" className="flex-1">
+                  <Star className="h-4 w-4 mr-2" />
+                  Favorite
+                </Button>
+                <Button className="flex-1 bg-primary">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+
+              {/* Additional Info */}
+              <div className="space-y-6 pt-4">
+                {/* Author Section */}
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src="/placeholder-avatar.svg" />
+                    <AvatarFallback>
+                      {tweak.author?.[0]?.toUpperCase() || "A"}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
-                    <div className="text-sm font-medium">Category</div>
-                    <Badge variant="secondary" className="mt-1">
-                      {categoryName || "Uncategorized"}
-                    </Badge>
+                    <div className="font-medium">
+                      {tweak.author || "Anonymous"}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Author</div>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <FileCode className="h-4 w-4 text-primary mt-1" />
-                  <div>
-                    <div className="text-sm font-medium">Type</div>
-                    <Badge variant="outline" className="mt-1">
-                      {tweak.tweak_type || "Not specified"}
-                    </Badge>
+                {/* Details Grid */}
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Hash className="h-4 w-4 text-primary mt-1" />
+                    <div>
+                      <div className="text-sm font-medium">Category</div>
+                      <Badge variant="secondary" className="mt-1">
+                        {categoryName || "Uncategorized"}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-start gap-3">
-                  <Calendar className="h-4 w-4 text-primary mt-1" />
-                  <div>
-                    <div className="text-sm font-medium">Last Updated</div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(tweak.updatedAt), {
-                        addSuffix: true,
-                      })}
+                  <div className="flex items-start gap-3">
+                    <FileCode className="h-4 w-4 text-primary mt-1" />
+                    <div>
+                      <div className="text-sm font-medium">Type</div>
+                      <Badge variant="outline" className="mt-1">
+                        {tweak.tweak_type || "Not specified"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Calendar className="h-4 w-4 text-primary mt-1" />
+                    <div>
+                      <div className="text-sm font-medium">Last Updated</div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {formatDistanceToNow(new Date(tweak.updatedAt), {
+                          addSuffix: true,
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+          </SheetContent>
+        </Sheet>
+      </>
     );
   }
 
   return (
     <>
+      <CustomBreadCrump
+        breadCrumpPage={tweak.title}
+        breadCrumpItem={[
+          {
+            link: "/explore",
+            label: "Explore",
+          },
+        ]}
+      />
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 rounded-lg border shadow-lg bg-background/60 backdrop-blur-xl w-full max-w-2xl mx-4">
         <div className="px-6 py-4">
           <div className="flex gap-4">
