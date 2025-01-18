@@ -17,6 +17,10 @@ import {
   BarChart3,
   ArrowDownAZ,
   ArrowUpAZ,
+  Terminal,
+  FileCode,
+  Settings,
+  FileText,
 } from "lucide-react";
 import {
   Sheet,
@@ -47,6 +51,13 @@ const SORT_OPTIONS = [
   { value: "trending", label: "Trending", icon: BarChart3 },
 ] as const;
 
+const FILE_TYPES = [
+  { value: "Batch", label: "Batch Files", icon: Terminal },
+  { value: "Registry", label: "Registry Files", icon: Settings },
+  { value: "PowerShell", label: "PowerShell Scripts", icon: FileCode },
+  { value: "VBScript", label: "VB Scripts", icon: FileText },
+] as const;
+
 export default function FilterMenu({ categories }: FilterMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -54,6 +65,7 @@ export default function FilterMenu({ categories }: FilterMenuProps) {
 
   const currentCategoryId = searchParams.get("categoryId");
   const currentSort = searchParams.get("sort");
+  const currentType = searchParams.get("tweakType");
 
   const onClick = (categoryId: string | null) => {
     const url = qs.stringifyUrl(
@@ -77,6 +89,21 @@ export default function FilterMenu({ categories }: FilterMenuProps) {
         query: {
           ...qs.parse(searchParams.toString()),
           sort,
+        },
+      },
+      { skipNull: true, skipEmptyString: true }
+    );
+
+    router.push(url);
+  };
+
+  const onFileType = (type: string | null) => {
+    const url = qs.stringifyUrl(
+      {
+        url: pathname,
+        query: {
+          ...qs.parse(searchParams.toString()),
+          tweakType: type,
         },
       },
       { skipNull: true, skipEmptyString: true }
@@ -114,6 +141,46 @@ export default function FilterMenu({ categories }: FilterMenuProps) {
           })}
         </div>
       </div>
+
+      <div>
+        <h4 className="font-medium leading-none mb-3">File Types</h4>
+        <Separator className="mb-3" />
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            className={cn(
+              "justify-start h-auto py-2",
+              !currentType && "border-primary"
+            )}
+            onClick={() => onFileType(null)}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            All Types
+            {!currentType && <Check className="ml-auto h-4 w-4" />}
+          </Button>
+          {FILE_TYPES.map((type) => {
+            const Icon = type.icon;
+            return (
+              <Button
+                key={type.value}
+                variant="outline"
+                className={cn(
+                  "justify-start h-auto py-2",
+                  currentType === type.value && "border-primary"
+                )}
+                onClick={() => onFileType(type.value)}
+              >
+                <Icon className="mr-2 h-4 w-4" />
+                {type.label}
+                {currentType === type.value && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+
       <div>
         <h4 className="font-medium leading-none mb-3">Categories</h4>
         <Separator className="mb-3" />
