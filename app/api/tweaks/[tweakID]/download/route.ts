@@ -11,21 +11,30 @@ export const PATCH = async (
 
     const tweak = await db.tweak.findUnique({
       where: { id: tweakID },
+      select: {
+        id: true,
+        downloadCount: true,
+      },
     });
 
     if (!tweak) return new NextResponse("Tweak not found", { status: 404 });
 
-    const downloadCount = tweak.downloadCount
-      ? BigInt(tweak.downloadCount) + BigInt(1)
-      : BigInt(1);
+    const currentCount = Number(tweak.downloadCount || 0);
+    const newCount = currentCount + 1;
 
     const updatedTweak = await db.tweak.update({
       where: { id: tweakID },
-      data: { downloadCount },
+      data: {
+        downloadCount: newCount,
+      },
+      select: {
+        id: true,
+        downloadCount: true,
+      },
     });
 
     return NextResponse.json({
-      ...updatedTweak,
+      id: updatedTweak.id,
       downloadCount: Number(updatedTweak.downloadCount),
     });
   } catch (error) {

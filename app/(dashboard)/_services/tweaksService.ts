@@ -254,9 +254,21 @@ export const TweaksService = {
       const response = await axios.patch<Tweak>(
         `/api/tweaks/${tweakID}/download`
       );
+
+      if (!response.data) {
+        console.error("No data received from download increment");
+        return {
+          success: false,
+          error: "No data received from server",
+        };
+      }
+
       return {
         success: true,
-        data: response.data,
+        data: {
+          ...response.data,
+          downloadCount: Number(response.data.downloadCount || 0),
+        },
       };
     } catch (error) {
       console.error("Error in incrementDownloadCount:", error);
