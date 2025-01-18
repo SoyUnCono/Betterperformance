@@ -3,12 +3,13 @@
 import { Tweak, TweakType } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { Download, Eye, Star } from "lucide-react";
+import { Download, Eye, Star, Calendar, User2, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { truncate } from "lodash";
 import TweakTags from "@/components/TweakTags";
 import { cn } from "@/lib/utils";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 interface TweakItemProps {
   tweak: Tweak;
@@ -25,58 +26,112 @@ export default function TweakItem({
   categoryName,
   tweakType,
 }: TweakItemProps) {
+  const isFavorited = tweak.savedUsers.includes(userId || "");
+
   return (
-    <Link href={`/explore/${tweakID}`}>
-      <Card className="group hover:shadow-md transition-all duration-300">
-        <div className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative w-[64px] h-[64px] rounded-lg overflow-hidden bg-secondary/10 flex-shrink-0">
+    <div className="group">
+      <Card className="border border-border/40 transition-all duration-200 hover:border-primary/20 hover:bg-primary/[0.02]">
+        <div className="p-3">
+          {/* Header Section */}
+          <div className="flex items-start gap-3">
+            <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-secondary/10 flex-shrink-0">
               <Image
                 src={tweak.icon_url || "/placeholder.svg"}
                 alt={tweak.title}
-                width={64}
-                height={64}
-                className="object-contain group-hover:scale-110 transition-all duration-300"
+                width={48}
+                height={48}
+                className="object-cover w-full h-full"
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-base truncate group-hover:text-primary transition-colors">
-                {tweak.title}
-              </h3>
-              <p className="text-sm text-muted-foreground truncate">
-                {tweak.short_description}
-              </p>
+              <div className="flex flex-col gap-1">
+                <div className="min-w-0">
+                  <Link
+                    href={`/explore/${tweakID}`}
+                    className="hover:underline inline-flex items-center gap-2"
+                  >
+                    <h3 className="font-semibold text-sm">{tweak.title}</h3>
+                  </Link>
+                  <div className="flex gap-1 flex-wrap mt-0.5">
+                    <TweakTags
+                      categoryName={categoryName}
+                      tweakType={tweakType}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                    {tweak.short_description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Stats Section */}
+              <div className="flex items-center flex-wrap gap-2 mt-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Download className="h-3 w-3" />
+                  <span>{tweak.downloadCount}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star className="h-3 w-3" />
+                  <span>{tweak.savedUsers.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span>{tweak.viewCount}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  <span>
+                    {formatDistanceToNow(new Date(tweak.updatedAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
+          {/* Footer Section */}
+          <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
             <div className="flex items-center gap-2">
-              <TweakTags categoryName={categoryName} tweakType={tweakType} />
-            </div>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Download className="h-3 w-3" />
-                <span>{tweak.downloadCount}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="h-3 w-3" />
-                <span>{tweak.savedUsers.length}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Eye className="h-3 w-3" />
-                <span>{tweak.viewCount}</span>
+              <Avatar className="h-5 w-5">
+                <AvatarImage src="/placeholder-avatar.svg" />
+                <AvatarFallback className="text-[10px]">
+                  {tweak.author?.[0]?.toUpperCase() || "A"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="text-xs font-medium">
+                {tweak.author || "Anonymous"}
               </div>
             </div>
-          </div>
-
-          <div className="mt-2 text-xs text-muted-foreground">
-            Updated{" "}
-            {formatDistanceToNow(new Date(tweak.updatedAt), {
-              addSuffix: true,
-            })}
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-7 w-7 transition-colors",
+                  isFavorited && "text-primary hover:text-primary/80"
+                )}
+                onClick={(e) => {
+                  e.preventDefault();
+                  // TODO: Add favorite functionality
+                }}
+              >
+                <Heart
+                  className={cn("h-3.5 w-3.5", isFavorited && "fill-current")}
+                />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2.5 text-xs border-primary/20 hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
+              >
+                <Download className="h-3 w-3 mr-1" />
+                Download
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
-    </Link>
+    </div>
   );
 }
