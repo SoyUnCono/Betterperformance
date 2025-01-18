@@ -96,6 +96,12 @@ export default function TweakItem({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
+      // Increment download count
+      const result = await TweaksService.incrementDownloadCount(tweakID);
+      if (result.error) {
+        console.error("Failed to increment download count:", result.error);
+      }
+
       toast.success("Download started");
       router.refresh();
     } catch (error) {

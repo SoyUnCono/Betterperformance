@@ -246,4 +246,31 @@ export const TweaksService = {
       };
     }
   },
+
+  incrementDownloadCount: async (
+    tweakID: string
+  ): Promise<ServiceResponse<Tweak>> => {
+    try {
+      const response = await axios.patch<Tweak>(
+        `/api/tweaks/${tweakID}/download`
+      );
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error) {
+      console.error("Error in incrementDownloadCount:", error);
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          error:
+            error.response?.data?.error || "Error incrementing download count",
+        };
+      }
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
+    }
+  },
 };

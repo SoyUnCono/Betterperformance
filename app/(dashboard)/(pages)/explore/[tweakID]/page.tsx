@@ -34,7 +34,11 @@ export default async function TweakPage({ params }: TweakPageProps) {
 
   return (
     <div className="flex flex-col min-h-screen pb-6">
-      <TweakHeader tweak={tweak} categoryName={tweak.category?.name || ""} />
+      <TweakHeader
+        tweak={tweak}
+        categoryName={tweak.category?.name || ""}
+        userId={userId}
+      />
 
       <div className="flex-1 container py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

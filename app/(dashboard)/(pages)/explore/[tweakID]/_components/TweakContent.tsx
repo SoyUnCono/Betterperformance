@@ -14,9 +14,10 @@ import { incrementTweakViews } from "@/actions/tweaks";
 
 interface TweakContentProps {
   tweak: any;
+  userId: string | null;
 }
 
-export default function TweakContent({ tweak }: TweakContentProps) {
+export default function TweakContent({ tweak, userId }: TweakContentProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   useEffect(() => {
@@ -25,7 +26,11 @@ export default function TweakContent({ tweak }: TweakContentProps) {
 
   const MobileView = () => (
     <div className="flex flex-col min-h-screen">
-      <TweakHeader tweak={tweak} categoryName={tweak.category?.name || ""} />
+      <TweakHeader
+        tweak={tweak}
+        categoryName={tweak.category?.name || ""}
+        userId={userId}
+      />
       {/* Content */}
       <div className="flex-1 container py-4 space-y-4">
         {/* Description */}
@@ -121,7 +126,11 @@ export default function TweakContent({ tweak }: TweakContentProps) {
 
   const DesktopView = () => (
     <div className="flex flex-col min-h-screen pb-24">
-      <TweakHeader tweak={tweak} categoryName={tweak.category?.name || ""} />
+      <TweakHeader
+        tweak={tweak}
+        categoryName={tweak.category?.name || ""}
+        userId={userId}
+      />
 
       <div className="flex-1 container py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
