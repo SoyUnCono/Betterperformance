@@ -1,212 +1,82 @@
 "use client";
+
 import { Tweak, TweakType } from "@prisma/client";
-import React, { useEffect, useState } from "react";
-import { Card, CardDescription } from "@/components/ui/card";
-import Box from "@/components/Box";
+import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { Button } from "@/components/ui/button";
-import {
-  BadgeAlertIcon,
-  CloudDownload,
-  Crown,
-  DownloadCloudIcon,
-  Eye,
-  HeartIcon,
-  Loader2,
-  Router,
-  User,
-} from "lucide-react";
+import { Download, Eye, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { truncate } from "lodash";
 import TweakTags from "@/components/TweakTags";
-import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
-import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
-import { redirect, useRouter } from "next/navigation";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import TweaksDetailModel from "../[tweakID]/TweaksDetailModel";
-import { stripHtml } from "@/app/(dashboard)/_helper/stripHTML";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import ToggleFavoriteButton from "@/components/ToggleFavoriteButton";
-import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface TweakItemProps {
   tweak: Tweak;
-  categoryName: string;
   tweakID: string;
-  tweakType: TweakType | null;
   userId: string | null;
+  categoryName: string;
+  tweakType: TweakType | null;
 }
 
 export default function TweakItem({
   tweak,
-  categoryName,
-  tweakType,
   tweakID,
   userId,
+  categoryName,
+  tweakType,
 }: TweakItemProps) {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (userId !== null) {
-      setIsLoading(false);
-    }
-  }, [userId]);
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   return (
-    <Card className="border-none">
-      <div className="w-full h-full bg-secondary/20 border rounded-md p-4 flex flex-col items-start  justify-start gap-y-4">
-        <Box className="flex items-center justify-between ">
-          <div className="flex gap-x-2 items-center ">
-            {categoryName && (
-              <Box className="flex-wrap justify-start gap-1  ">
-                <p className="text-muted-foreground text-xs border px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
-                  {categoryName}
-                </p>
-              </Box>
-            )}
-            {tweakType && (
-              <h1 className="text-muted-foreground text-xs border  px-2 bg-secondary/10 rounded-md py-[2px] font-semibold">
-                {tweakType}
-              </h1>
-            )}
-          </div>
-          {userId && (
-            <ToggleFavoriteButton
-              tweak={tweak}
-              userId={userId}
-              tweakID={tweakID}
-            />
-          )}
-        </Box>
-        <Box className="items-center justify-start gap-x-4">
-          <div className="w-12 h-12 min-w-12 min-h-12 flex items-center overflow-hidden">
-            {tweak.icon_url && (
+    <Link href={`/explore/${tweakID}`}>
+      <Card className="group hover:shadow-md transition-all duration-300">
+        <div className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="relative w-[64px] h-[64px] rounded-lg overflow-hidden bg-secondary/10 flex-shrink-0">
               <Image
-                width={40}
-                height={40}
                 src={tweak.icon_url || "/placeholder.svg"}
-                alt={tweak?.title}
-                className="object-contain"
+                alt={tweak.title}
+                width={64}
+                height={64}
+                className="object-contain group-hover:scale-110 transition-all duration-300"
               />
-            )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium text-base truncate group-hover:text-primary transition-colors">
+                {tweak.title}
+              </h3>
+              <p className="text-sm text-muted-foreground truncate">
+                {tweak.short_description}
+              </p>
+            </div>
           </div>
 
-          <div className="w-full gap-y-4">
-            <p className="font-semibold text-base w-full truncate">
-              {truncate(tweak.title, {
-                length: 25,
-                omission: "...",
-              })}
-            </p>
-
-            {tweak.short_description && (
-              <div className="text-xs text-muted-foreground">
-                {truncate(tweak.short_description, {
-                  length: 180,
-                  omission: "...",
-                })}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <TweakTags categoryName={categoryName} tweakType={tweakType} />
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Download className="h-3 w-3" />
+                <span>{tweak.downloadCount}</span>
               </div>
-            )}
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3" />
+                <span>{tweak.savedUsers.length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Eye className="h-3 w-3" />
+                <span>{tweak.viewCount}</span>
+              </div>
+            </div>
           </div>
-        </Box>
 
-        <Box className="flex items-center justify-start gap-x-6">
-          <TweakTags Icon={CloudDownload} Title={`${tweak.downloadCount}`} />
-          <TweakTags
-            Icon={HeartIcon}
-            Title={`${tweak.savedUsers.length} Favorites`}
-          />
-          <TweakTags Icon={Eye} Title={`${tweak.viewCount}`} />
-        </Box>
-
-        {tweak.description && (
-          <CardDescription className="text-xs">
-            {truncate(stripHtml(tweak.description), {
-              length: 180,
-              omission: "...",
+          <div className="mt-2 text-xs text-muted-foreground">
+            Updated{" "}
+            {formatDistanceToNow(new Date(tweak.updatedAt), {
+              addSuffix: true,
             })}
-          </CardDescription>
-        )}
-
-        <div className="flex gap-x-7">
-          {tweak.author && (
-            <Link
-              href={`/tweaker/${tweak.author}`}
-              className="text-sm text-muted-foreground bg-accent  p-2 rounded-md hover:bg-accent/80 border"
-            >
-              <div className="flex items-center gap-x-1">
-                <Crown className="h-4 w-4" />
-                <p>{tweak.author}</p>
-              </div>
-            </Link>
-          )}
-          <div className="flex items-center gap-x-2 ">
-            <div className="bg-green-600 rounded-full border-secondary w-2 h-2 relative right-0 top-0 justify-items-center" />
-            <p className="text-xs text-muted-foreground ">
-              {`Updated at ${formatDistanceToNow(new Date(tweak.updatedAt), {
-                addSuffix: true,
-              })}`}
-            </p>
           </div>
         </div>
-
-        <Box className="gap-2 mt-auto">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="w-full bg-background/40" variant={"outline"}>
-                Details
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="container mx-auto px-4 py-8 max-w-7xl overflow-y-scroll">
-              <DialogHeader>
-                <DialogTitle>{`${tweak.title} - UniqueID: ${tweakID}`}</DialogTitle>
-                <DialogDescription>{tweak.short_description}</DialogDescription>
-              </DialogHeader>
-              <TweaksDetailModel
-                categorie={categoryName}
-                tweak={tweak}
-                tweakID={tweakID}
-                userId={userId}
-              />
-              <DialogFooter>
-                <Button variant="outline" className="w-full">
-                  <BadgeAlertIcon className="mr-2 h-4 w-4" /> Report a problem
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Button
-            className="w-full bg-background flex items-center gap-x-2"
-            variant={"outline"}
-          >
-            <DownloadCloudIcon className="w-4 h-4" />
-            Download
-          </Button>
-        </Box>
-      </div>
-    </Card>
+      </Card>
+    </Link>
   );
 }
