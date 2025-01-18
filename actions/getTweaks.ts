@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { Tweak } from "@prisma/client";
+import { Tweak, TweakType } from "@prisma/client";
 
 type GetTweaks = {
   title?: string;
@@ -61,10 +61,7 @@ export const getTweaks = async ({
 
     if (tweakType) {
       whereConditions.push({
-        tweak_type: {
-          contains: tweakType,
-          mode: "insensitive",
-        },
+        tweak_type: tweakType as TweakType,
       });
     }
 
