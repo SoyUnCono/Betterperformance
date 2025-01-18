@@ -1,24 +1,27 @@
 "use client";
 
-import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
-import { LoadingButton } from "@/components/LoadingButton";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import axios from "axios";
-import { EyeOff, ShieldAlert, ShieldMinus, Trash } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
+import { TweaksService } from "@/app/(dashboard)/_services/tweaksService";
+import { Loader2, Trash } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TweaksPublishActionsProps {
   tweakID: string;
-  isDisabled: boolean;
   isPublished: boolean;
+  isDisabled: boolean;
 }
 
 export default function TweaksPublishActions({
@@ -26,92 +29,94 @@ export default function TweaksPublishActions({
   isPublished,
   isDisabled,
 }: TweaksPublishActionsProps) {
-  const [isLoading, setisLoading] = useState(false);
-  const [isDeleteLoading, setisDeleteLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const router = useRouter();
 
   const onPublish = async () => {
-    if (isPublished) {
-      setisLoading(true);
-      await TweaksService.unpublishTweak(tweakID)
-        .then(() => toast.success("The tweak its now Hide!"))
-        .catch((error) => {
-          toast.error(
-            "There was an  error publishing the tweak. Please try again."
-          );
-        })
-        .finally(() => {
-          router.refresh();
-          setisLoading(false);
-        });
-    } else {
-      setisLoading(true);
-      await TweaksService.publishTweak(tweakID)
-        .then(() => toast.success("The tweak has been published successfully!"))
-        .catch((error) => {
-          toast.error(
-            "There was an error publishing the tweak. Please try again."
-          );
-        })
-        .finally(() => {
-          router.refresh();
-          setisLoading(false);
-        });
+    try {
+      setIsLoading(true);
+      const service = isPublished
+        ? TweaksService.unpublishTweak
+        : TweaksService.publishTweak;
+      const result = await service(tweakID);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(
+        isPublished
+          ? "The tweak is now hidden!"
+          : "The tweak has been published successfully!"
+      );
+      router.refresh();
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const onDelete = async () => {
-    setisDeleteLoading(true);
+    try {
+      setIsDeleteLoading(true);
+      const result = await TweaksService.deleteTweak(tweakID);
 
-    await TweaksService.deleteTweak(tweakID)
-      .then(() => {
-        toast.success("The tweak has been deleted successfully!");
-      })
-      .catch(() =>
-        toast.error("There was an error deleting the tweak. Please try again.")
-      )
-      .finally(() => {
-        setisDeleteLoading(false);
-        router.push("/admin");
-      });
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("The tweak has been deleted successfully!");
+      router.push("/admin");
+    } catch (error) {
+      toast.error("An unexpected error occurred while deleting the tweak.");
+    } finally {
+      setIsDeleteLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center gap-x-1">
-      <LoadingButton
-        variant={"outline"}
-        disabled={isLoading || isDisabled}
-        showLoadingText={true}
-        isSubmitting={isLoading}
+    <div className="flex items-center gap-x-2">
+      <Button
         onClick={onPublish}
+        disabled={isDisabled || isLoading}
+        variant="outline"
+        size="sm"
       >
-        {isPublished ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <ShieldAlert className="h-4 w-4" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">
-                  Disable the tweak temporarily. It will be hidden from other
-                  users and visible only to Tweakers.
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          "Publish"
-        )}
-      </LoadingButton>
-
-      <LoadingButton
-        variant={"outline"}
-        isSubmitting={isDeleteLoading}
-        disabled={isDeleteLoading}
-        onClick={onDelete}
-      >
-        <Trash className="h-4 w-4" />
-      </LoadingButton>
+        {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+        {isPublished ? "Unpublish" : "Publish"}
+      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button size="sm" disabled={isDeleteLoading} variant="destructive">
+            {isDeleteLoading && (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            )}
+            <Trash className="h-4 w-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              tweak.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={onDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
