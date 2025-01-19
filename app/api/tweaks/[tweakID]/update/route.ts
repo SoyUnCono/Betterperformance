@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
 
 const updateTweakSchema = z.object({
   title: z.string().min(1).max(100).optional(),
@@ -25,6 +26,10 @@ export async function PATCH(
         { status: 401 }
       );
     }
+
+    // Verificar si el usuario es administrador
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
 
     const tweakID = params.tweakID;
     if (!tweakID) {

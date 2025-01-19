@@ -26,7 +26,7 @@ export default async function TweakPage({ params }: TweakPageProps) {
     include: {
       category: true,
     },
-  });
+  });               
 
   if (!tweak) {
     return redirect("/explore");

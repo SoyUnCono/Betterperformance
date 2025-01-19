@@ -12,16 +12,17 @@ import {
 import { NavbarRoute } from "../_types/NavbarRoutes";
 
 export const routes: NavbarRoute[] = [
-  { icon: Home, label: "Home", path: "/", isBottom: false },
+  { icon: Home, label: "Home", path: "/", isBottom: false, requiresAdmin: false },
   {
     icon: LucideNewspaper,
     label: "What is New?",
     path: "/new",
     isBottom: false,
+    requiresAdmin: false,
   },
-  { icon: AtSign, label: "Explore", path: "/explore", isBottom: false },
-  { icon: Crown, label: "Admin Panel", path: "/admin", isBottom: true },
-  { icon: User, label: "Account", path: "/user", isBottom: true },
-  { icon: Heart, label: "Favorites", path: "/favorites", isBottom: true },
-  { icon: Settings, label: "Settings", path: "/settings", isBottom: true },
+  { icon: AtSign, label: "Explore", path: "/explore", isBottom: false, requiresAdmin: false },
+  { icon: Crown, label: "Admin Panel", path: "/admin", isBottom: true, requiresAdmin: true },
+  { icon: User, label: "Account", path: "/user", isBottom: true, requiresAdmin: false },
+  { icon: Heart, label: "Favorites", path: "/favorites", isBottom: true, requiresAdmin: false },
+  { icon: Settings, label: "Settings", path: "/settings", isBottom: true, requiresAdmin: false },
 ];

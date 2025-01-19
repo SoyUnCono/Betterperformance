@@ -8,14 +8,31 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
 
 export default function NavbarItem({
   icon: Icon,
   label,
   path,
   isBottom,
-}: NavbarRoute) {
+  requiresAdmin = false,
+}: NavbarRoute & { requiresAdmin?: boolean }) {
   const pathname = usePathname();
+  const { user, isLoaded } = useUser();
+  
+  // Si aún no se ha cargado el usuario, no mostrar nada
+  if (!isLoaded) return null;
+  
+  // Si no hay usuario autenticado, no mostrar ningún item
+  if (!user) return null;
+
+  const role = user?.publicMetadata?.role as string | undefined;
+  const isAdmin = role === "ADMIN";
+  
+  // Si la ruta requiere admin y el usuario no es admin, no mostrar el item
+  if (requiresAdmin && !isAdmin) {
+    return null;
+  }
 
   const isCurrentPathname =
     (pathname === "/" && path === "/") ||

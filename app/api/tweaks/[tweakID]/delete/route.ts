@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth";
 
 export async function DELETE(
   req: Request,
@@ -14,6 +15,10 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    // Verificar si el usuario es administrador
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
 
     const { tweakID } = params;
     if (!tweakID) {
@@ -30,9 +35,6 @@ export async function DELETE(
     if (!tweak) {
       return NextResponse.json({ error: "Tweak not found" }, { status: 404 });
     }
-
-    // Check if the user has permission to delete the tweak
-    // Add any additional authorization checks here
 
     const deletedTweak = await db.tweak.delete({
       where: { id: tweakID },

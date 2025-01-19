@@ -5,4 +5,5 @@ export interface NavbarRoute {
   label: string;
   path: string;
   isBottom: boolean;
+  requiresAdmin?: boolean;
 }

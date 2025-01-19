@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import {
   Breadcrumb,
   BreadcrumbEllipsis,
@@ -29,18 +30,16 @@ export default function CustomBreadCrump({
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        {breadCrumpItem && (
-          <>
-            {breadCrumpItem.map((item, index) => (
-              <>
-                <BreadcrumbSeparator key={index} />
-                <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
-              </>
-            ))}
-          </>
-        )}
-        <BreadcrumbSeparator />
+        {breadCrumpItem && breadCrumpItem.map((item, index) => (
+          <React.Fragment key={item.link + index}>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={item.link}>{item.label}</BreadcrumbLink>
+            </BreadcrumbItem>
+          </React.Fragment>
+        ))}
 
+        <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbPage>{breadCrumpPage}</BreadcrumbPage>
         </BreadcrumbItem>

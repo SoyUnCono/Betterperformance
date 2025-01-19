@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
 
 const createTweakSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title is too long"),
@@ -21,6 +22,10 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
+
+    // Verificar si el usuario es administrador
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
 
     const body = await req.json();
 
