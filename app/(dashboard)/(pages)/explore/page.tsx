@@ -16,7 +16,7 @@ interface ExploreProps {
 export default async function Explore({ searchParams }: ExploreProps) {
   const categories = await db.category.findMany({
     orderBy: {
-      name: "asc",
+      name: "asc", 
     },
   });
 

@@ -15,23 +15,36 @@ const createTweakSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    console.log("[TWEAK_CREATE] Starting request");
     const { userId } = auth();
+    console.log("[TWEAK_CREATE] UserId:", userId);
+
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized access" },
+        { success: false, error: "Unauthorized" },
         { status: 401 }
       );
     }
 
     // Verificar si el usuario es administrador
+    console.log("[TWEAK_CREATE] Checking admin status");
     const adminCheck = await requireAdmin();
-    if (adminCheck) return adminCheck;
+    console.log("[TWEAK_CREATE] Admin check result:", adminCheck);
+
+    if (!adminCheck.success) {
+      return NextResponse.json(
+        { success: false, error: adminCheck.error },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json();
+    console.log("[TWEAK_CREATE] Request body:", body);
 
     // Validate request body
     const validationResult = createTweakSchema.safeParse(body);
     if (!validationResult.success) {
+      console.log("[TWEAK_CREATE] Validation failed:", validationResult.error);
       return NextResponse.json(
         {
           success: false,
@@ -50,6 +63,7 @@ export async function POST(req: Request) {
     });
 
     if (existingTweak) {
+      console.log("[TWEAK_CREATE] Duplicate title found");
       return NextResponse.json(
         {
           success: false,
@@ -59,6 +73,7 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("[TWEAK_CREATE] Creating tweak with data:", validationResult.data);
     // Create the basic tweak with just title and short description
     const tweak = await db.tweak.create({
       data: {
@@ -68,23 +83,26 @@ export async function POST(req: Request) {
         isPublished: false,
         viewCount: 0,
         downloadCount: 0,
-        savedUsers: [],
+        savedUsers: {
+          set: []
+        }
       },
     });
 
+    console.log("[TWEAK_CREATE] Tweak created successfully:", tweak);
     return NextResponse.json({
       success: true,
-      message: "Tweak created successfully",
-      data: tweak,
+      data: tweak
     });
-  } catch (error) {
-    console.error("Error creating tweak:", error);
+  } catch (error: unknown) {
+    console.error("[TWEAK_CREATE] Error details:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      cause: error instanceof Error ? error.cause : undefined
+    });
     return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
+      { success: false, error: "Internal Error" },
       { status: 500 }
     );
   }

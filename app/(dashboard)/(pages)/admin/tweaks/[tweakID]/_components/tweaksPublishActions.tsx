@@ -36,10 +36,7 @@ export default function TweaksPublishActions({
   const onPublish = async () => {
     try {
       setIsLoading(true);
-      const service = isPublished
-        ? TweaksService.unpublishTweak
-        : TweaksService.publishTweak;
-      const result = await service(tweakID);
+      const result = await TweaksService.toggleTweakVisibility(tweakID);
 
       if (result.error) {
         toast.error(result.error);

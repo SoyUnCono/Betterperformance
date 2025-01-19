@@ -15,6 +15,8 @@ import {
   Heart,
   Pencil,
   Trash2,
+  EyeOff,
+  MoreVertical,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { incrementTweakViews } from "@/actions/tweaks";
@@ -29,9 +31,17 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { useUser } from "@clerk/nextjs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 interface TweakHeaderProps {
-  tweak: Tweak;
+  tweak: Tweak & { isHidden?: boolean };
   categoryName: string;
   userId: string | null;
 }
@@ -47,6 +57,7 @@ export default function TweakHeader({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const isFavorited = tweak.savedUsers.includes(userId || "");
 
   useEffect(() => {
@@ -87,7 +98,7 @@ export default function TweakHeader({
 
     try {
       setIsDownloading(true);
-      const result = await TweaksService.downloadTweak(tweak.id);
+      const result = await TweaksService.incrementDownloadCount(tweak.id);
 
       if (result.error) {
         toast.error(result.error);
@@ -102,6 +113,101 @@ export default function TweakHeader({
       setIsDownloading(false);
     }
   };
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      const result = await TweaksService.deleteTweak(tweak.id);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success("Tweak deleted successfully!");
+      router.push("/explore");
+    } catch (error) {
+      toast.error("Failed to delete tweak");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleHide = async () => {
+    try {
+      setIsLoading(true);
+      const result = await TweaksService.toggleTweakVisibility(tweak.id);
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      toast.success(tweak.isHidden ? "Tweak is now visible" : "Tweak is now hidden");
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to update tweak visibility");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const AdminActions = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-background/60 backdrop-blur-sm hover:bg-background/80"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={handleHide}>
+          {tweak.isHidden ? (
+            <>
+              <Eye className="h-4 w-4 mr-2" />
+              Show Tweak
+            </>
+          ) : (
+            <>
+              <EyeOff className="h-4 w-4 mr-2" />
+              Hide Tweak
+            </>
+          )}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`/admin/tweaks/${tweak.id}`)}>
+          <Pencil className="h-4 w-4 mr-2" />
+          Edit Tweak
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <DropdownMenuItem
+              onSelect={(e) => e.preventDefault()}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Tweak
+            </DropdownMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the tweak.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   if (isMobile) {
     return (
@@ -149,6 +255,7 @@ export default function TweakHeader({
                     {tweak.short_description}
                   </p>
                 </div>
+                {isAdmin && <AdminActions />}
               </div>
 
               {/* Stats */}
@@ -263,123 +370,101 @@ export default function TweakHeader({
 
   return (
     <>
-      <CustomBreadCrump
-        breadCrumpPage={tweak.title}
-        breadCrumpItem={[
-          {
-            link: "/explore",
-            label: "Explore",
-          },
-          ...(isAdmin ? [{
-            link: "/admin",
-            label: "Admin",
-          }] : []),
-        ]}
-      />
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 rounded-lg border shadow-lg bg-background/60 backdrop-blur-xl w-full max-w-2xl mx-4">
-        <div className="px-6 py-4">
-          <div className="flex gap-4">
-            {/* Icon */}
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-secondary/10 flex-shrink-0">
-              <Image
-                src={tweak.icon_url || "/placeholder.svg"}
-                alt={tweak.title}
-                width={48}
-                height={48}
-                className="object-contain"
-              />
-            </div>
+      <div className="relative flex items-center gap-x-4 h-24">
+        <CustomBreadCrump
+          breadCrumpPage={tweak.title}
+          breadCrumpItem={[
+            {
+              link: "/explore",
+              label: "Explore",
+            },
+            ...(isAdmin ? [{
+              link: "/admin",
+              label: "Admin",
+            }] : []),
+          ]}
+        />
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 rounded-lg border shadow-lg bg-background/60 backdrop-blur-xl w-full max-w-4xl mx-4">
+          <div className="px-8 py-4">
+            <div className="flex items-center gap-8">
+              {/* Icon */}
+              <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-secondary/10 flex-shrink-0">
+                <Image
+                  src={tweak.icon_url || "/placeholder.svg"}
+                  alt={tweak.title}
+                  width={56}
+                  height={56}
+                  className="object-contain"
+                />
+              </div>
 
-            <div className="flex-1 min-w-0">
-              {/* Title and Stats */}
-              <div className="flex items-center justify-between">
-                <h1 className="text-lg font-medium truncate">{tweak.title}</h1>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
+              <div className="flex-1 min-w-0">
+                {/* Title and Description */}
+                <div className="space-y-1.5">
+                  <h1 className="text-xl font-medium line-clamp-1">{tweak.title}</h1>
+                  <p className="text-sm text-muted-foreground line-clamp-1">
+                    {tweak.short_description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Stats and Actions */}
+              <div className="flex items-center gap-10">
+                <div className="flex items-center gap-8 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
                     <Download className="h-4 w-4" />
                     <span>{tweak.downloadCount}</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <Star className="h-4 w-4" />
                     <span>{tweak.savedUsers.length}</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <Eye className="h-4 w-4" />
                     <span>{tweak.viewCount}</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Description */}
-              <p className="text-sm text-muted-foreground truncate mt-1">
-                {tweak.short_description}
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-start gap-3 pt-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleFavorite}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Heart
-                    className={cn(
-                      "h-4 w-4 mr-2",
-                      isFavorited && "fill-current"
+                <div className="flex items-center gap-3">
+                  {isAdmin && <AdminActions />}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFavorite}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Heart
+                        className={cn(
+                          "h-4 w-4 mr-2",
+                          isFavorited && "fill-current"
+                        )}
+                      />
                     )}
-                  />
-                )}
-                {isFavorited ? "Favorited" : "Favorite"}
-              </Button>
-              <Button
-                size="sm"
-                className="bg-primary"
-                onClick={handleDownload}
-                disabled={isDownloading}
-              >
-                {isDownloading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4 mr-2" />
-                )}
-                Download
-              </Button>
+                    {isFavorited ? "Favorited" : "Favorite"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-primary"
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-2" />
+                    )}
+                    Download
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <div className="absolute inset-0 bg-background/60 backdrop-blur-xl -z-10 right-0" />
       </div>
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-xl -z-10" />
-      {isAdmin && (
-        <div className="flex items-center gap-2 mt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push(`/admin/tweaks/${tweak.id}`)}
-          >
-            <Pencil className="h-4 w-4 mr-2" />
-            Edit Tweak
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={async () => {
-              if (window.confirm("Are you sure you want to delete this tweak?")) {
-                await TweaksService.deleteTweak(tweak.id);
-                router.push("/explore");
-                toast.success("Tweak deleted successfully");
-              }
-            }}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Tweak
-          </Button>
-        </div>
-      )}
     </>
   );
 }

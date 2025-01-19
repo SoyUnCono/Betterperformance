@@ -24,40 +24,19 @@ interface ServiceResponse<T> {
 }
 
 export const TweaksService = {
-  createTweak: async (
-    values: CreateTweakDTO
-  ): Promise<ServiceResponse<Tweak>> => {
+  async createTweak(values: CreateTweakDTO): Promise<ServiceResponse<Tweak>> {
     try {
-      console.log("Creating tweak with values:", values);
-      const response = await axios.post<{
-        success: boolean;
-        data: Tweak;
-        error?: string;
-      }>("/api/tweaks/create", values);
-
-      if (!response.data.success) {
-        console.error("Error from server:", response.data.error);
-        return {
-          success: false,
-          error: response.data.error || "Failed to create tweak",
-        };
-      }
-
-      return {
-        success: true,
-        data: response.data.data,
-      };
+      const response = await axios.post<ServiceResponse<Tweak>>(
+        "/api/tweaks/create",
+        values
+      );
+      return response.data;
     } catch (error) {
       console.error("Error in createTweak:", error);
       if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.error || error.message;
-        console.error("Axios error details:", {
-          status: error.response?.status,
-          data: error.response?.data,
-        });
         return {
           success: false,
-          error: errorMessage,
+          error: error.response?.data?.error || "Failed to create tweak",
         };
       }
       return {
@@ -149,21 +128,18 @@ export const TweaksService = {
     }
   },
 
-  publishTweak: async (tweakID: string): Promise<ServiceResponse<Tweak>> => {
+  toggleTweakVisibility: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
     try {
-      const response = await axios.patch<Tweak>(
-        `/api/tweaks/${tweakID}/publish`
+      const response = await axios.patch<ApiResponse<Tweak>>(
+        `/api/tweaks/${tweakId}/visibility`
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response.data;
     } catch (error) {
-      console.error("Error in publishTweak:", error);
+      console.error("Error in toggleTweakVisibility:", error);
       if (axios.isAxiosError(error)) {
         return {
           success: false,
-          error: error.response?.data?.error || "Error publishing tweak",
+          error: error.response?.data?.error || "Failed to toggle tweak visibility",
         };
       }
       return {
@@ -173,28 +149,12 @@ export const TweaksService = {
     }
   },
 
-  unpublishTweak: async (tweakID: string): Promise<ServiceResponse<Tweak>> => {
-    try {
-      const response = await axios.patch<Tweak>(
-        `/api/tweaks/${tweakID}/unpublish`
-      );
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error in unpublishTweak:", error);
-      if (axios.isAxiosError(error)) {
-        return {
-          success: false,
-          error: error.response?.data?.error || "Error unpublishing tweak",
-        };
-      }
-      return {
-        success: false,
-        error: "An unexpected error occurred",
-      };
-    }
+  publishTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
+    return TweaksService.toggleTweakVisibility(tweakId);
+  },
+
+  unpublishTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
+    return TweaksService.toggleTweakVisibility(tweakId);
   },
 
   toggleSaveTweak: async (tweakID: string): Promise<ServiceResponse<Tweak>> => {
@@ -277,6 +237,32 @@ export const TweaksService = {
           success: false,
           error:
             error.response?.data?.error || "Error incrementing download count",
+        };
+      }
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
+    }
+  },
+
+  async deleteTweak(tweakId: string): Promise<ServiceResponse<Tweak>> {
+    try {
+      const response = await axios.delete<{
+        success: boolean;
+        data: Tweak;
+        message: string;
+      }>(`/api/tweaks/${tweakId}/delete`);
+      return {
+        success: true,
+        data: response.data.data
+      };
+    } catch (error) {
+      console.error("Error in deleteTweak:", error);
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          error: error.response?.data?.error || "Failed to delete tweak",
         };
       }
       return {
