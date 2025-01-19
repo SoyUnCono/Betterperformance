@@ -3,7 +3,9 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import FilterMenu from "./_components/FilterMenu";
 import PageContent from "./_components/PageContent";
-import PopularTweaks from "./_components/PopularTweaks";
+import { TweakerService } from "@/app/(dashboard)/_services/tweakerService";
+import { TweakerCarousel } from "./_components/TweakerCarousel";
+import { Separator } from "@/components/ui/separator";
 
 interface ExploreProps {
   searchParams: {
@@ -16,7 +18,7 @@ interface ExploreProps {
 export default async function Explore({ searchParams }: ExploreProps) {
   const categories = await db.category.findMany({
     orderBy: {
-      name: "asc", 
+      name: "asc",
     },
   });
 
@@ -28,6 +30,10 @@ export default async function Explore({ searchParams }: ExploreProps) {
     orderDirection: "desc",
   });
 
+  // Obtener tweakers destacados
+  const featuredTweakersResult = await TweakerService.getFeaturedTweakers(6);
+  const featuredTweakers = featuredTweakersResult || [];
+
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between p-6 border-b">
@@ -35,10 +41,10 @@ export default async function Explore({ searchParams }: ExploreProps) {
         <FilterMenu categories={categories} />
       </div>
       <div className="px-6">
-        <PopularTweaks tweaks={tweaks} />
+        <TweakerCarousel tweakers={featuredTweakers} />
       </div>
+      <Separator className="my-8" />
       <div className="px-6">
-        <h2 className="text-2xl font-semibold mb-4">All Tweaks</h2>
         <PageContent userId={userId} tweak={tweaks} />
       </div>
     </div>

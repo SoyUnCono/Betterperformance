@@ -3,14 +3,14 @@ import { NextResponse } from "next/server";
 
 export const PATCH = async (
   req: Request,
-  { params }: { params: { tweakID: string } }
+  { params }: { params: { tweakId: string } }
 ) => {
   try {
-    const { tweakID } = params;
-    if (!tweakID) return new NextResponse("TweakID not found", { status: 404 });
+    const { tweakId } = params;
+    if (!tweakId) return new NextResponse("TweakId not found", { status: 404 });
 
     const tweak = await db.tweak.findUnique({
-      where: { id: tweakID },
+      where: { id: tweakId },
       select: {
         id: true,
         downloadCount: true,
@@ -23,7 +23,7 @@ export const PATCH = async (
     const newCount = currentCount + 1;
 
     const updatedTweak = await db.tweak.update({
-      where: { id: tweakID },
+      where: { id: tweakId },
       data: {
         downloadCount: newCount,
       },

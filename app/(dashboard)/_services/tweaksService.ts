@@ -1,6 +1,7 @@
 "use client";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { Tweak, TweakType } from "@prisma/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface CreateTweakDTO {
   title: string;
@@ -30,15 +31,31 @@ export const TweaksService = {
         "/api/tweaks/create",
         values
       );
+      if (response.data.success) {
+        toast({
+          title: "¡Éxito!",
+          description: "Tweak creado correctamente",
+        });
+      }
       return response.data;
     } catch (error) {
       console.error("Error in createTweak:", error);
       if (axios.isAxiosError(error)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data?.error || "Error al crear el tweak",
+        });
         return {
           success: false,
           error: error.response?.data?.error || "Failed to create tweak",
         };
       }
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+      });
       return {
         success: false,
         error: "An unexpected error occurred",
@@ -47,26 +64,39 @@ export const TweaksService = {
   },
 
   updateTweak: async (
-    tweakID: string,
+    tweakId: string,
     values: UpdateTweakDTO
   ): Promise<ServiceResponse<Tweak>> => {
     try {
-      const response = await axios.patch<Tweak>(
-        `/api/tweaks/${tweakID}/update`,
+      const response = await axios.patch<ServiceResponse<Tweak>>(
+        `/api/tweaks/${tweakId}/update`,
         values
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      if (response.data.success) {
+        toast({
+          title: "¡Éxito!",
+          description: "Tweak actualizado correctamente",
+        });
+      }
+      return response.data;
     } catch (error) {
       console.error("Error in updateTweak:", error);
       if (axios.isAxiosError(error)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data?.error || "Error al actualizar el tweak",
+        });
         return {
           success: false,
           error: error.response?.data?.error || "Error updating tweak",
         };
       }
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+      });
       return {
         success: false,
         error: "An unexpected error occurred",
@@ -75,12 +105,12 @@ export const TweaksService = {
   },
 
   changeTweakType: async (
-    tweakID: string,
+    tweakId: string,
     tweakType: TweakType
   ): Promise<ServiceResponse<Tweak>> => {
     try {
       const response = await axios.patch<Tweak>(
-        `/api/tweaks/${tweakID}/type`,
+        `/api/tweaks/${tweakId}/type`,
         tweakType
       );
       return {
@@ -102,25 +132,36 @@ export const TweaksService = {
     }
   },
 
-  deleteTweak: async (tweakID: string): Promise<ServiceResponse<Tweak>> => {
+  deleteTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
     try {
-      const response = await axios.delete<{
-        success: boolean;
-        data: Tweak;
-        message: string;
-      }>(`/api/tweaks/${tweakID}/delete`);
-      return {
-        success: true,
-        data: response.data.data,
-      };
+      const response = await axios.delete<ServiceResponse<Tweak>>(
+        `/api/tweaks/${tweakId}/delete`
+      );
+      if (response.data.success) {
+        toast({
+          title: "¡Éxito!",
+          description: "Tweak eliminado correctamente",
+        });
+      }
+      return response.data;
     } catch (error) {
       console.error("Error in deleteTweak:", error);
       if (axios.isAxiosError(error)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data?.error || "Error al eliminar el tweak",
+        });
         return {
           success: false,
-          error: error.response?.data?.error || "Error deleting tweak",
+          error: error.response?.data?.error || "Failed to delete tweak",
         };
       }
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+      });
       return {
         success: false,
         error: "An unexpected error occurred",
@@ -130,18 +171,34 @@ export const TweaksService = {
 
   toggleTweakVisibility: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
     try {
-      const response = await axios.patch<ApiResponse<Tweak>>(
+      const response = await axios.patch<ServiceResponse<Tweak>>(
         `/api/tweaks/${tweakId}/visibility`
       );
+      if (response.data.success) {
+        toast({
+          title: "¡Éxito!",
+          description: "Visibilidad actualizada correctamente",
+        });
+      }
       return response.data;
     } catch (error) {
       console.error("Error in toggleTweakVisibility:", error);
       if (axios.isAxiosError(error)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data?.error || "Error al cambiar la visibilidad",
+        });
         return {
           success: false,
-          error: error.response?.data?.error || "Failed to toggle tweak visibility",
+          error: error.response?.data?.error || "Failed to toggle visibility",
         };
       }
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+      });
       return {
         success: false,
         error: "An unexpected error occurred",
@@ -150,30 +207,20 @@ export const TweaksService = {
   },
 
   publishTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
-    return TweaksService.toggleTweakVisibility(tweakId);
-  },
-
-  unpublishTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
-    return TweaksService.toggleTweakVisibility(tweakId);
-  },
-
-  toggleSaveTweak: async (tweakID: string): Promise<ServiceResponse<Tweak>> => {
     try {
       const response = await axios.patch<Tweak>(
-        `/api/tweaks/${tweakID}/favorite`
+        `/api/tweaks/${tweakId}/publish`
       );
       return {
         success: true,
         data: response.data,
       };
     } catch (error) {
-      console.error("Error in toggleSaveTweak:", error);
+      console.error("Error in publishTweak:", error);
       if (axios.isAxiosError(error)) {
         return {
           success: false,
-          error:
-            error.response?.data?.error ||
-            "Error toggling tweak favorite status",
+          error: error.response?.data?.error || "Failed to publish tweak",
         };
       }
       return {
@@ -183,15 +230,73 @@ export const TweaksService = {
     }
   },
 
-  incrementViewCount: async (
-    tweakID: string
-  ): Promise<ServiceResponse<Tweak>> => {
+  unpublishTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
     try {
-      const response = await axios.patch<Tweak>(`/api/tweaks/${tweakID}/view`);
+      const response = await axios.patch<Tweak>(
+        `/api/tweaks/${tweakId}/unpublish`
+      );
       return {
         success: true,
         data: response.data,
       };
+    } catch (error) {
+      console.error("Error in unpublishTweak:", error);
+      if (axios.isAxiosError(error)) {
+        return {
+          success: false,
+          error: error.response?.data?.error || "Failed to unpublish tweak",
+        };
+      }
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
+    }
+  },
+
+  toggleSaveTweak: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
+    try {
+      const response = await axios.patch<ServiceResponse<Tweak>>(
+        `/api/tweaks/${tweakId}/favorite`
+      );
+      if (response.data.success) {
+        toast({
+          title: "¡Éxito!",
+          description: "Estado de favorito actualizado",
+        });
+      }
+      return response.data;
+    } catch (error) {
+      console.error("Error in toggleSaveTweak:", error);
+      if (axios.isAxiosError(error)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data?.error || "Error al cambiar estado de favorito",
+        });
+        return {
+          success: false,
+          error: error.response?.data?.error || "Failed to toggle favorite",
+        };
+      }
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+      });
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
+    }
+  },
+
+  incrementViewCount: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
+    try {
+      const response = await axios.patch<ServiceResponse<Tweak>>(
+        `/api/tweaks/${tweakId}/view`
+      );
+      return response.data;
     } catch (error) {
       console.error("Error in incrementViewCount:", error);
       if (axios.isAxiosError(error)) {
@@ -207,62 +312,18 @@ export const TweaksService = {
     }
   },
 
-  incrementDownloadCount: async (
-    tweakID: string
-  ): Promise<ServiceResponse<Tweak>> => {
+  incrementDownloadCount: async (tweakId: string): Promise<ServiceResponse<Tweak>> => {
     try {
-      const response = await axios.patch<Tweak>(
-        `/api/tweaks/${tweakID}/download`
+      const response = await axios.patch<ServiceResponse<Tweak>>(
+        `/api/tweaks/${tweakId}/download`
       );
-
-      if (!response.data) {
-        console.error("No data received from download increment");
-        return {
-          success: false,
-          error: "No data received from server",
-        };
-      }
-
-      return {
-        success: true,
-        data: {
-          ...response.data,
-          downloadCount: Number(response.data.downloadCount || 0),
-        },
-      };
+      return response.data;
     } catch (error) {
       console.error("Error in incrementDownloadCount:", error);
       if (axios.isAxiosError(error)) {
         return {
           success: false,
-          error:
-            error.response?.data?.error || "Error incrementing download count",
-        };
-      }
-      return {
-        success: false,
-        error: "An unexpected error occurred",
-      };
-    }
-  },
-
-  async deleteTweak(tweakId: string): Promise<ServiceResponse<Tweak>> {
-    try {
-      const response = await axios.delete<{
-        success: boolean;
-        data: Tweak;
-        message: string;
-      }>(`/api/tweaks/${tweakId}/delete`);
-      return {
-        success: true,
-        data: response.data.data
-      };
-    } catch (error) {
-      console.error("Error in deleteTweak:", error);
-      if (axios.isAxiosError(error)) {
-        return {
-          success: false,
-          error: error.response?.data?.error || "Failed to delete tweak",
+          error: error.response?.data?.error || "Error incrementing download count",
         };
       }
       return {

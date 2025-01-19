@@ -4,17 +4,17 @@ import { NextResponse } from "next/server";
 
 export const PATCH = async (
   req: Request,
-  { params }: { params: { tweakID: string } }
+  { params }: { params: { tweakId: string } }
 ) => {
   try {
     const { userId } = auth();
     if (!userId) return new NextResponse("User not Defined", { status: 404 });
 
-    const { tweakID } = params;
-    if (!tweakID) return new NextResponse("TweakID not found", { status: 404 });
+    const { tweakId } = params;
+    if (!tweakId) return new NextResponse("TweakId not found", { status: 404 });
 
     const tweak = await db.tweak.findUnique({
-      where: { id: tweakID },
+      where: { id: tweakId },
     });
 
     if (!tweak) return new NextResponse("Tweak not found", { status: 404 });
@@ -24,7 +24,7 @@ export const PATCH = async (
       : BigInt(1);
 
     const updatedTweak = await db.tweak.update({
-      where: { id: tweakID },
+      where: { id: tweakId },
       data: { viewCount },
     });
 

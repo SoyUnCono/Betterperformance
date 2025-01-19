@@ -27,7 +27,7 @@ type UpdateTweakInput = z.infer<typeof updateTweakSchema>;
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { tweakID: string } }
+  { params }: { params: { tweakId: string } }
 ): Promise<Response> {
   try {
     console.log("[TWEAK_UPDATE] Starting request");
@@ -72,11 +72,11 @@ export async function PATCH(
 
     // Check if tweak exists
     const existingTweak = await db.tweak.findUnique({
-      where: { id: params.tweakID }
+      where: { id: params.tweakId }
     });
 
     if (!existingTweak) {
-      console.log("[TWEAK_UPDATE] Tweak not found:", params.tweakID);
+      console.log("[TWEAK_UPDATE] Tweak not found:", params.tweakId);
       return Response.json(
         { success: false, error: "Tweak not found" } satisfies ApiResponse,
         { status: 404 }
@@ -88,7 +88,7 @@ export async function PATCH(
       const duplicateTweak = await db.tweak.findFirst({
         where: {
           title: validationResult.data.title,
-          NOT: { id: params.tweakID }
+          NOT: { id: params.tweakId }
         }
       });
 
@@ -106,7 +106,7 @@ export async function PATCH(
 
     console.log("[TWEAK_UPDATE] Updating tweak with data:", validationResult.data);
     const updatedTweak = await db.tweak.update({
-      where: { id: params.tweakID },
+      where: { id: params.tweakId },
       data: validationResult.data
     });
 

@@ -1,12 +1,12 @@
 "use client";
 
-import { UserButton } from "@clerk/nextjs";
-import MobileNavbar from "./_mobile/MobileNavbar";
-import { usePathname } from "next/navigation";
-import SearchContainer from "@/components/SearchContainer";
-import { useTheme } from "next-themes";
 import { dark } from "@clerk/themes";
+import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import MobileNavbar from "./_mobile/MobileNavbar";
+import SearchContainer from "@/components/SearchContainer";
+import { AdminUserButton } from "@/components/AdminUserButton";
 
 export default function TopSection({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -17,8 +17,8 @@ export default function TopSection({ className }: { className?: string }) {
   const appearanceOptions =
     theme === "dark"
       ? {
-          baseTheme: dark,
-        }
+        baseTheme: dark,
+      }
       : {};
 
   return (
@@ -36,7 +36,7 @@ export default function TopSection({ className }: { className?: string }) {
       <MobileNavbar />
       <div className="hidden md:flex"></div>
       <div className="w-full h-full rounded-full flex items-center justify-end">
-        <UserButton appearance={appearanceOptions} />
+        <AdminUserButton appearance={appearanceOptions} />
       </div>
     </div>
   );

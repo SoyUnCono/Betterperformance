@@ -12,13 +12,13 @@ import {
 import { Home } from "lucide-react";
 
 interface CustomBreadCrumpProps {
-  breadCrumpPage: string;
-  breadCrumpItem?: { link: string; label: string }[];
+  items: { link: string; label: string }[];
+  currentPage?: string;
 }
 
 export default function CustomBreadCrump({
-  breadCrumpPage,
-  breadCrumpItem,
+  items,
+  currentPage,
 }: CustomBreadCrumpProps) {
   return (
     <Breadcrumb>
@@ -30,7 +30,7 @@ export default function CustomBreadCrump({
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        {breadCrumpItem && breadCrumpItem.map((item, index) => (
+        {items?.map((item, index) => (
           <React.Fragment key={item.link + index}>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
@@ -39,10 +39,14 @@ export default function CustomBreadCrump({
           </React.Fragment>
         ))}
 
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbPage>{breadCrumpPage}</BreadcrumbPage>
-        </BreadcrumbItem>
+        {currentPage && (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{currentPage}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </>
+        )}
       </BreadcrumbList>
     </Breadcrumb>
   );

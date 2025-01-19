@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { tweakID: string } }
+  { params }: { params: { tweakId: string } }
 ) {
   try {
     const { userId } = auth();
@@ -21,7 +21,7 @@ export async function PATCH(
     const adminCheck = await requireAdmin();
     if (adminCheck) return adminCheck;
 
-    const { tweakID } = params;
+    const { tweakId } = params;
     const tweakType = await req.text();
 
     if (!tweakType || !Object.values(TweakType).includes(tweakType as TweakType)) {
@@ -32,7 +32,7 @@ export async function PATCH(
     }
 
     const updatedTweak = await db.tweak.update({
-      where: { id: tweakID },
+      where: { id: tweakId },
       data: {
         tweak_type: tweakType as TweakType,
       },

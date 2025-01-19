@@ -1,80 +1,93 @@
 "use client";
 
-import { UserService } from "@/app/(dashboard)/_services/userService";
-import { LoadingButton } from "@/components/LoadingButton";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UserProfile } from "@prisma/client";
-import { Pencil } from "lucide-react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { z } from "zod";
+import { Pencil } from "lucide-react";
 
-interface EmailFormProps {
-  initialData: UserProfile | null;
-  userId: string;
-}
-
-const formScheme = z.object({
-  email: z.string().email("Invalid email format").min(1, "Email is required"),
+const formSchema = z.object({
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
 });
 
-export function EmailForm({ initialData, userId }: EmailFormProps) {
-  const [isEditing, setIsEditing] = useState(false);
+export function EmailForm({ initialData, userId }: any) {
   const router = useRouter();
+  const { user } = useUser();
+  const [isEditing, setIsEditing] = useState(false);
 
-  const form = useForm<z.infer<typeof formScheme>>({
-    resolver: zodResolver(formScheme),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      email: initialData?.email || "",
+      email: user?.primaryEmailAddress?.emailAddress || "",
     },
   });
 
   const { isSubmitting, isValid } = form.formState;
 
-  const onSubmit = async (values: z.infer<typeof formScheme>) => {
-    await UserService.updateEmail(userId, values)
-      .then(() => {
-        toggleEditing();
-      })
-      .catch((error: any) => {
-        const errorMessage =
-          error?.errors?.[0]?.message ||
-          `An error has occurred while trying to update the email: ${error}`;
-        toast.error(errorMessage);
-      })
-      .finally(() => {
-        router.refresh();
-      });
-  };
+  const toggleEdit = () => setIsEditing((current) => !current);
 
-  const toggleEditing = () => setIsEditing((current) => !current);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (!user) {
+        throw new Error("No user found");
+      }
+
+      // Verificar si el email es diferente al actual
+      if (values.email === user.primaryEmailAddress?.emailAddress) {
+        toast.error("Please enter a different email address");
+        return;
+      }
+
+      // Crear una nueva dirección de email
+      const email = await user.createEmailAddress({
+        email: values.email,
+      });
+
+      // Preparar la verificación
+      await email.prepareVerification({
+        strategy: "email_code",
+      });
+
+      toast.success("Verification email sent. Please check your inbox.");
+      toggleEdit();
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
 
   return (
     <div className="mt-2 border bg-secondary/30 rounded-md p-4 w-full">
       <div className="font-medium flex items-center justify-between">
-        Email
-        <Button onClick={toggleEditing} variant="outline">
-          {isEditing ? <>Cancel</> : <Pencil className="h-4 w-4" />}
+        Email address
+        <Button onClick={toggleEdit} variant="outline" size="sm">
+          {isEditing ? (
+            <>Cancel</>
+          ) : (
+            <Pencil className="h-4 w-4" />
+          )}
         </Button>
       </div>
-
       {!isEditing && (
         <p className="text-sm text-muted-foreground overflow-clip">
-          {initialData?.email}
+          {user?.primaryEmailAddress?.emailAddress}
         </p>
       )}
-
       {isEditing && (
         <Form {...form}>
           <form
@@ -86,28 +99,25 @@ export function EmailForm({ initialData, userId }: EmailFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>New Email</FormLabel>
                   <FormControl>
-                    <div>
-                      <Input
-                        disabled={isSubmitting}
-                        placeholder={
-                          initialData?.email || "Sampleemail@gmail.com"
-                        }
-                        {...field}
-                      />
-                    </div>
+                    <Input
+                      disabled={isSubmitting}
+                      placeholder="Enter your new email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <div className="flex items-center gap-x-2">
-              <LoadingButton
-                isSubmitting={isSubmitting}
-                isValid={isValid}
+              <Button
+                disabled={!isValid || isSubmitting}
                 type="submit"
-              />
+              >
+                Save
+              </Button>
             </div>
           </form>
         </Form>

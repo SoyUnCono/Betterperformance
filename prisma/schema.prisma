@@ -9,22 +9,24 @@ datasource db {
 }
 
 model Tweak {
-  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
   title             String
   description       String?
   short_description String?
   icon_url          String?
-  author            String?
+  authorId          String?        @db.ObjectId
+  authorProfile     TweakerProfile? @relation(fields: [authorId], references: [id])
   savedUsers        String[]
-  categoryId        String?    @db.ObjectId
-  category          Category?  @relation(fields: [categoryId], references: [id])
+  categoryId        String?        @db.ObjectId
+  category          Category?      @relation(fields: [categoryId], references: [id])
   regedit           String?
   tweak_type        TweakType?
-  isPublished       Boolean    @default(false)
-  viewCount         Int        @default(0)
-  downloadCount     Int        @default(0)
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @default(now())
+  isPublished       Boolean        @default(false)
+  viewCount         Int           @default(0)
+  downloadCount     Int           @default(0)
+  price             Float?        // Precio para tweaks premium
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @default(now())
 }
 
 model UserProfile {
@@ -48,4 +50,44 @@ model Category {
   tweaks    Tweak[]
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+}
+
+model TweakerProfile {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String    @unique
+  username        String?
+  biography       String?
+  specialties     String[]
+  contactEmail    String?
+  website         String?
+  github          String?
+  twitter         String?
+  discord         String?
+  linkedin        String?
+  isPublic        Boolean   @default(true)
+  tweaks          Tweak[]   
+  featuredTweaks  String[]  
+  pricingInfo     Json?     
+  achievements    String[]  
+  joinedAt        DateTime  @default(now())
+  lastActive      DateTime  @default(now())
+  totalDownloads  Int      @default(0)
+  rating          Float?   
+  reviewCount     Int      @default(0)
+  customTheme     Json?    
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  reviews         Review[]  
+}
+
+model Review {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+  rating      Float
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      String       
+  userName    String       
+  tweakerId   String       @db.ObjectId
+  tweaker     TweakerProfile @relation(fields: [tweakerId], references: [id])
 }

@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/auth";
 
 export const PATCH = async (
   req: Request,
-  { params }: { params: { tweakID: string } }
+  { params }: { params: { tweakId: string } }
 ) => {
   try {
     const { userId } = auth();
@@ -17,11 +17,11 @@ export const PATCH = async (
     const adminCheck = await requireAdmin();
     if (adminCheck) return adminCheck;
 
-    const { tweakID } = params;
+    const { tweakId } = params;
 
     const Tweak = await db.tweak.findUnique({
       where: {
-        id: tweakID,
+        id: tweakId,
       },
     });
 
@@ -29,7 +29,7 @@ export const PATCH = async (
 
     const publishedTweak = await db.tweak.update({
       where: {
-        id: tweakID,
+        id: tweakId,
       },
       data: {
         isPublished: true,

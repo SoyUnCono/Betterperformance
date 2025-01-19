@@ -6,7 +6,7 @@ import { TweakResponse, ErrorResponse } from "@/types/api";
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { tweakID: string } }
+    { params }: { params: { tweakId: string } }
 ): Promise<Response> {
     try {
         console.log("[TWEAK_VISIBILITY] Starting request");
@@ -33,11 +33,11 @@ export async function PATCH(
         }
 
         const tweak = await db.tweak.findUnique({
-            where: { id: params.tweakID }
+            where: { id: params.tweakId }
         });
 
         if (!tweak) {
-            console.log("[TWEAK_VISIBILITY] Tweak not found:", params.tweakID);
+            console.log("[TWEAK_VISIBILITY] Tweak not found:", params.tweakId);
             return Response.json(
                 { success: false, error: "Tweak not found" } satisfies ErrorResponse,
                 { status: 404 }
@@ -46,7 +46,7 @@ export async function PATCH(
 
         console.log("[TWEAK_VISIBILITY] Current visibility:", !tweak.isPublished);
         const updatedTweak = await db.tweak.update({
-            where: { id: params.tweakID },
+            where: { id: params.tweakId },
             data: { isPublished: !tweak.isPublished }
         });
 

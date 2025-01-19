@@ -11,7 +11,7 @@ interface ApiResponse {
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { tweakID: string } }
+  { params }: { params: { tweakId: string } }
 ): Promise<Response> {
   try {
     console.log("[TWEAK_DELETE] Starting request");
@@ -38,7 +38,7 @@ export async function DELETE(
     }
 
     const tweak = await db.tweak.findUnique({
-      where: { id: params.tweakID }
+      where: { id: params.tweakId }
     });
 
     if (!tweak) {
@@ -49,7 +49,7 @@ export async function DELETE(
     }
 
     const deletedTweak = await db.tweak.delete({
-      where: { id: params.tweakID }
+      where: { id: params.tweakId }
     });
 
     console.log("[TWEAK_DELETE] Tweak deleted successfully:", deletedTweak);

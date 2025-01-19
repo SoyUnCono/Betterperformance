@@ -1,38 +1,45 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import { ToastProvider } from "@/providers/ToastProvider";
-import { ThemeProvider } from "@/providers/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "@/app/providers/theme-provider";
+import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
+  weight: ['400', '500', '600', '700'],
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
-  title: "BetterPerformance",
-  description:
-    "A tool for Windows users to optimize performance and tailor your computer to your preferences. Become the owner of your own system!",
+  title: "Better Performance",
+  description: "Improve your performance with our tools",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body className={poppins.className}>
+      <html lang="en" suppressHydrationWarning>
+        <head />
+        <body
+          className={cn(
+            "min-h-screen bg-background font-sans antialiased",
+            poppins.variable
+          )}
+        >
           <ThemeProvider
-            disableTransitionOnChange
             attribute="class"
             defaultTheme="system"
             enableSystem
+            disableTransitionOnChange
           >
             {children}
-            <ToastProvider />
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>
