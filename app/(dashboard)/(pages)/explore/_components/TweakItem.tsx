@@ -168,11 +168,11 @@ export default function TweakItem({
 
   return (
     <div className="group">
-      <Card className="border border-border/40 transition-all duration-200 hover:border-primary/20 hover:bg-primary/[0.02]">
+      <Card className="border border-border/40 transition-all bg-secondary/20 duration-200 hover:border-primary/20 hover:bg-primary/[0.02]">
         <div className="p-3">
           {/* Header Section */}
           <div className="flex items-start gap-3">
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-secondary/10 flex-shrink-0">
+            <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
               <Image
                 src={tweak.icon_url || "/placeholder.svg"}
                 alt={tweak.title}
@@ -188,7 +188,7 @@ export default function TweakItem({
                     href={`/explore/${tweakID}`}
                     className="hover:underline inline-flex items-center gap-2"
                   >
-                    <h3 className="font-semibold text-sm">{tweak.title}</h3>
+                    <h3 className="font-semibold text-sm line-clamp-1">{tweak.title}</h3>
                   </Link>
                   <div className="flex gap-1 flex-wrap mt-0.5">
                     <TweakTags
@@ -196,7 +196,7 @@ export default function TweakItem({
                       tweakType={tweakType}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                  <p className="text-xs text-muted-foreground line-clamp-2 mt-1 h-8">
                     {tweak.short_description}
                   </p>
                 </div>
