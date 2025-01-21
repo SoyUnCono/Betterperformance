@@ -41,7 +41,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface TweakHeaderProps {
-  tweak: Tweak & { isHidden?: boolean };
+  tweak: Tweak & {
+    authorProfile: TweakerProfile | null;
+    isHidden?: boolean;
+  };
   categoryName: string;
   userId: string | null;
 }
@@ -311,16 +314,16 @@ export default function TweakHeader({
               {/* Additional Info */}
               <div className="space-y-6 pt-4">
                 {/* Author Section */}
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/placeholder-avatar.svg" />
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={tweak.authorProfile?.customTheme?.avatarUrl || "/placeholder-avatar.svg"} />
                     <AvatarFallback>
-                      {tweak.author?.[0]?.toUpperCase() || "A"}
+                      {tweak.authorProfile?.username?.[0]?.toUpperCase() || "A"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">
-                      {tweak.author || "Anonymous"}
+                    <div className="text-sm font-medium">
+                      {tweak.authorProfile?.username || "Anonymous"}
                     </div>
                     <div className="text-sm text-muted-foreground">Author</div>
                   </div>

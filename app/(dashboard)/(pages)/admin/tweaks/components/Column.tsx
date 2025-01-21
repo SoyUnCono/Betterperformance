@@ -15,6 +15,9 @@ export type TweaksColumn = {
   createdAt: string;
   author: string;
   isPublished: boolean;
+  authorProfile: {
+    username: string;
+  } | null;
 };
 
 export const columns: ColumnDef<TweaksColumn>[] = [
@@ -108,38 +111,18 @@ export const columns: ColumnDef<TweaksColumn>[] = [
     },
   },
   {
-    accessorKey: "author",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Author
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    accessorKey: "authorProfile",
+    header: () => <div className="text-center">Author</div>,
     cell: ({ row }) => {
-      const { author } = row.original;
-      const splitAuthor = author.split("@")[1];
-
+      const authorProfile = row.original.authorProfile;
       return (
-        <div className="flex gap-x-2">
-          <p className="text-sm text-muted-foreground">
-            {author.split("@")[0]}
-          </p>
-
-          {splitAuthor ? (
-            <p className="text-sm underline text-accent-foreground">
-              @{splitAuthor}
-            </p>
-          ) : (
-            <p></p>
-          )}
+        <div className="text-center">
+          <span className="font-medium">
+            {authorProfile?.username || "Anonymous"}
+          </span>
         </div>
       );
-    },
+    }
   },
   {
     accessorKey: "isPublished",

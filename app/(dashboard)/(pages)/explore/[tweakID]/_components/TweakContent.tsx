@@ -11,9 +11,13 @@ import CopyButton from "./CopyButton";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useEffect } from "react";
 import { incrementTweakViews } from "@/actions/tweaks";
+import Link from "next/link";
 
 interface TweakContentProps {
-  tweak: any;
+  tweak: Tweak & {
+    authorProfile: TweakerProfile | null;
+    category?: { name: string } | null;
+  };
   userId: string | null;
 }
 
@@ -69,20 +73,29 @@ export default function TweakContent({ tweak, userId }: TweakContentProps) {
 
           <div className="space-y-4">
             {/* Author */}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-avatar.svg" />
-                <AvatarFallback>
-                  {tweak.author?.[0]?.toUpperCase() || "A"}
+            <Link
+              href={`/tweaker/${tweak.authorProfile?.userId}`}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarImage
+                  src={
+                    tweak.authorProfile?.customTheme &&
+                      typeof tweak.authorProfile.customTheme === 'object' &&
+                      'avatarUrl' in tweak.authorProfile.customTheme
+                      ? (tweak.authorProfile.customTheme as { avatarUrl: string }).avatarUrl
+                      : "/placeholder-avatar.svg"
+                  }
+                />
+                <AvatarFallback className="text-xs">
+                  {tweak.authorProfile?.username?.[0]?.toUpperCase() || "A"}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <div className="font-medium text-sm">
-                  {tweak.author || "Anonymous"}
-                </div>
-                <div className="text-xs text-muted-foreground">Author</div>
+              <div className="text-sm font-medium">
+                {tweak.authorProfile?.username || "Anonymous"}
               </div>
-            </div>
+              <div className="text-xs text-muted-foreground">Author</div>
+            </Link>
 
             {/* Details */}
             <div className="grid grid-cols-2 gap-3">
@@ -175,19 +188,32 @@ export default function TweakContent({ tweak, userId }: TweakContentProps) {
 
               <div className="space-y-6">
                 {/* Author Section */}
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/placeholder-avatar.svg" />
-                    <AvatarFallback>
-                      {tweak.author?.[0]?.toUpperCase() || "A"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium">
-                      {tweak.author || "Anonymous"}
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/tweaker/${tweak.authorProfile?.userId}`}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={
+                          tweak.authorProfile?.customTheme &&
+                            typeof tweak.authorProfile.customTheme === 'object' &&
+                            'avatarUrl' in tweak.authorProfile.customTheme
+                            ? (tweak.authorProfile.customTheme as { avatarUrl: string }).avatarUrl
+                            : "/placeholder-avatar.svg"
+                        }
+                      />
+                      <AvatarFallback>
+                        {tweak.authorProfile?.username?.[0]?.toUpperCase() || "A"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="text-sm font-medium">
+                        {tweak.authorProfile?.username || "Anonymous"}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Author</div>
                     </div>
-                    <div className="text-sm text-muted-foreground">Author</div>
-                  </div>
+                  </Link>
                 </div>
 
                 {/* Details Grid */}

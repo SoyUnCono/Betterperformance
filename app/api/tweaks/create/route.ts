@@ -73,13 +73,30 @@ export async function POST(req: Request) {
       );
     }
 
+    // Get or create TweakerProfile for the user
+    let tweakerProfile = await db.tweakerProfile.findUnique({
+      where: {
+        userId: userId
+      }
+    });
+
+    if (!tweakerProfile) {
+      tweakerProfile = await db.tweakerProfile.create({
+        data: {
+          userId: userId,
+          username: userId, // Temporal, deberías obtener esto de Clerk
+          isPublic: true
+        }
+      });
+    }
+
     console.log("[TWEAK_CREATE] Creating tweak with data:", validationResult.data);
     // Create the basic tweak with just title and short description
     const tweak = await db.tweak.create({
       data: {
         title: validationResult.data.title,
         short_description: validationResult.data.short_description || null,
-        author: userId,
+        authorId: tweakerProfile.id,
         isPublished: false,
         viewCount: 0,
         downloadCount: 0,
@@ -87,6 +104,9 @@ export async function POST(req: Request) {
           set: []
         }
       },
+      include: {
+        authorProfile: true
+      }
     });
 
     console.log("[TWEAK_CREATE] Tweak created successfully:", tweak);

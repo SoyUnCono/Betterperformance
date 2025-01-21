@@ -5,10 +5,12 @@ import { formatDistanceToNow } from "date-fns";
 import TweakHeader from "./_components/TweakHeader";
 import TweakDescription from "./_components/TweakDescription";
 import { Card } from "@/components/ui/card";
-import { FileText, Info, User2, Calendar, Hash, FileCode } from "lucide-react";
+import { FileText, Info, Calendar, Hash, FileCode } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import CopyButton from "./_components/CopyButton";
+import { Tweak, TweakType, TweakerProfile } from "@prisma/client";
+import Link from "next/link";
 
 interface TweakPageProps {
   params: {
@@ -25,8 +27,9 @@ export default async function TweakPage({ params }: TweakPageProps) {
     },
     include: {
       category: true,
+      authorProfile: true,
     },
-  });               
+  });
 
   if (!tweak) {
     return redirect("/explore");
@@ -81,52 +84,61 @@ export default async function TweakPage({ params }: TweakPageProps) {
 
               <div className="space-y-6">
                 {/* Author Section */}
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/20">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/placeholder-avatar.svg" />
+                <Link
+                  href={`/tweaker/${tweak.authorProfile?.userId}`}
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={
+                        tweak.authorProfile?.customTheme &&
+                          typeof tweak.authorProfile.customTheme === 'object' &&
+                          'avatarUrl' in tweak.authorProfile.customTheme
+                          ? (tweak.authorProfile.customTheme as { avatarUrl: string }).avatarUrl
+                          : "/placeholder-avatar.svg"
+                      }
+                    />
                     <AvatarFallback>
-                      {tweak.author?.[0]?.toUpperCase() || "A"}
+                      {tweak.authorProfile?.username?.[0]?.toUpperCase() || "A"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">
-                      {tweak.author || "Anonymous"}
+                    <div className="text-sm font-medium">
+                      {tweak.authorProfile?.username || "Anonymous"}
                     </div>
                     <div className="text-sm text-muted-foreground">Author</div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Details Grid */}
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <Hash className="h-4 w-4 text-primary mt-1" />
-                    <div>
-                      <div className="text-sm font-medium">Category</div>
-                      <Badge variant="secondary" className="mt-1">
-                        {tweak.category?.name || "Uncategorized"}
-                      </Badge>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <Hash className="h-4 w-4 text-primary mt-1" />
+                  <div>
+                    <div className="text-sm font-medium">Category</div>
+                    <Badge variant="secondary" className="mt-1">
+                      {tweak.category?.name || "Uncategorized"}
+                    </Badge>
                   </div>
+                </div>
 
-                  <div className="flex items-start gap-3">
-                    <FileCode className="h-4 w-4 text-primary mt-1" />
-                    <div>
-                      <div className="text-sm font-medium">Type</div>
-                      <Badge variant="outline" className="mt-1">
-                        {tweak.tweak_type || "Not specified"}
-                      </Badge>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <FileCode className="h-4 w-4 text-primary mt-1" />
+                  <div>
+                    <div className="text-sm font-medium">Type</div>
+                    <Badge variant="outline" className="mt-1">
+                      {tweak.tweak_type || "Not specified"}
+                    </Badge>
                   </div>
+                </div>
 
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-4 w-4 text-primary mt-1" />
-                    <div>
-                      <div className="text-sm font-medium">Last Updated</div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {formatDistanceToNow(new Date(tweak.updatedAt), {
-                          addSuffix: true,
-                        })}
-                      </div>
+                <div className="flex items-start gap-3">
+                  <Calendar className="h-4 w-4 text-primary mt-1" />
+                  <div>
+                    <div className="text-sm font-medium">Last Updated</div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {formatDistanceToNow(new Date(tweak.updatedAt), {
+                        addSuffix: true,
+                      })}
                     </div>
                   </div>
                 </div>

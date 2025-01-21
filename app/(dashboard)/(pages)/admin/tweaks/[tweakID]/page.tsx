@@ -6,11 +6,10 @@ import TweaksPublishActions from "./_components/tweaksPublishActions";
 import { Banner } from "@/components/Banner";
 import { IconBagde } from "@/components/IconBagde";
 import TitleForm from "./_components/Forms/TitleForm";
-import AuthorForm from "./_components/Forms/AuthorForm";
-import CategoryForm from "./_components/Forms/CategoryForm";
 import DescriptionForm from "./_components/Forms/DescriptionForm";
-import ImageForm from "./_components/Forms/ImageForm";
-import ShortDescriptionForm from "./_components/Forms/ShortDescription";
+import CategoryForm from "./_components/Forms/CategoryForm";
+import RegeditEditorForm from "./_components/Forms/RegeditEditorForm";
+import RegeditTypeForm from "./_components/Forms/RegeditTypeForm";
 import {
   Tooltip,
   TooltipContent,
@@ -18,9 +17,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { db } from "@/lib/db";
-import RegeditEditorForm from "./_components/Forms/RegeditEditorForm";
-import { TweakType } from "@prisma/client";
-import RegeditTypeForm from "./_components/Forms/RegeditTypeForm";
 
 interface TweaksDetailProps {
   tweakID: string;
@@ -50,7 +46,7 @@ export default async function TweaksDetailPage({
     tweak.title,
     tweak.short_description,
     tweak.regedit,
-    tweak.author,
+    tweak.authorId,
     tweak.categoryId,
   ];
 
@@ -115,25 +111,24 @@ export default async function TweaksDetailPage({
           label="This tweak is not published yet. Make sure to publish it after finishing the edits; otherwise, this tweak will not be visible to others."
         />
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-16">
-        <div className="mb-2">
-          <div className="flex items-center gap-x-2">
-            <IconBagde icon={LayoutDashboard} />
-            <h2 className="text-xl text-neutral-700">Tweak Information</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16">
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBagde icon={LayoutDashboard} />
+              <h2 className="text-xl">Customize your tweak</h2>
+            </div>
+            <TitleForm initialData={tweak} tweakID={params.tweakID} />
+            <DescriptionForm initialData={tweak} tweakID={params.tweakID} />
+            <CategoryForm
+              initialData={tweak}
+              tweakID={params.tweakID}
+              options={categories.map((category) => ({
+                label: category.name,
+                value: category.id,
+              }))}
+            />
           </div>
-          <TitleForm initialData={tweak} tweakID={params.tweakID} />
-          <CategoryForm
-            initialData={tweak}
-            tweakID={params.tweakID}
-            options={categories.map((category) => ({
-              label: category.name,
-              value: category.id,
-            }))}
-          />
-          <ImageForm initialData={tweak} tweakID={params.tweakID} />
-          <ShortDescriptionForm initialData={tweak} tweakID={params.tweakID} />
-          <AuthorForm initialData={tweak} tweakID={params.tweakID} />
-          <DescriptionForm initialData={tweak} tweakID={params.tweakID} />
         </div>
         <div className="flex flex-col w-full h-full">
           <div className="flex items-center gap-x-2">

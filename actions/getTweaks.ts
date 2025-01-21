@@ -52,9 +52,11 @@ export const getTweaks = async ({
 
     if (author) {
       whereConditions.push({
-        author: {
-          contains: author,
-          mode: "insensitive",
+        authorProfile: {
+          username: {
+            contains: author,
+            mode: "insensitive",
+          },
         },
       });
     }
@@ -79,6 +81,7 @@ export const getTweaks = async ({
       },
       include: {
         category: true,
+        authorProfile: true,
       },
       orderBy: {
         [orderBy]: orderDirection,

@@ -12,6 +12,7 @@ export default async function Admin() {
   const fetchTweaks = await db.tweak.findMany({
     include: {
       category: true,
+      authorProfile: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -26,14 +27,14 @@ export default async function Admin() {
     short_description: tweak?.short_description
       ? tweak.short_description
       : "N/A",
-    author: tweak?.author ? tweak.author : "N/A",
     createdAt: tweak?.createdAt
       ? format(new Date(tweak.createdAt), "MMMM do, yyyy")
       : "N/A",
     isPublished: tweak.isPublished,
+    authorProfile: tweak.authorProfile,
   }));
 
-return (
+  return (
     <div className="mt-6 p-6">
       <DataTable data={formattedTweaks} columns={columns} searchKey="title" />
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Tweak, TweakType } from "@prisma/client";
+import { Tweak, TweakType, TweakerProfile } from "@prisma/client";
 import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -24,7 +24,9 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 
 interface TweakItemProps {
-  tweak: Tweak;
+  tweak: Tweak & {
+    authorProfile: TweakerProfile | null;
+  };
   tweakID: string;
   userId: string | null;
   categoryName: string;
@@ -230,17 +232,28 @@ export default function TweakItem({
 
           {/* Footer Section */}
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
-            <div className="flex items-center gap-2">
+            <Link
+              href={`/tweaker/${tweak.authorProfile?.userId}`}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
               <Avatar className="h-5 w-5">
-                <AvatarImage src="/placeholder-avatar.svg" />
+                <AvatarImage
+                  src={
+                    tweak.authorProfile?.customTheme &&
+                      typeof tweak.authorProfile.customTheme === 'object' &&
+                      'avatarUrl' in tweak.authorProfile.customTheme
+                      ? (tweak.authorProfile.customTheme as { avatarUrl: string }).avatarUrl
+                      : "/placeholder-avatar.svg"
+                  }
+                />
                 <AvatarFallback className="text-[10px]">
-                  {tweak.author?.[0]?.toUpperCase() || "A"}
+                  {tweak.authorProfile?.username?.[0]?.toUpperCase() || "A"}
                 </AvatarFallback>
               </Avatar>
               <div className="text-xs font-medium">
-                {tweak.author || "Anonymous"}
+                {tweak.authorProfile?.username || "Anonymous"}
               </div>
-            </div>
+            </Link>
             <div className="flex items-center gap-1.5">
               <Button
                 variant="ghost"
