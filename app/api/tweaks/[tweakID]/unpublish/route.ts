@@ -1,28 +1,55 @@
-import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
-export const PATCH = async (
+export async function PATCH(
   req: Request,
-  { params }: { params: { tweakID: string } }
-) => {
-  const { tweakID } = params;
+  { params }: { params: { tweakId: string } }
+) {
+  try {
+    const { userId } = auth();
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-  const tweak = await db.tweak.findUnique({
-    where: {
-      id: tweakID,
-    },
-  });
+    // Verificar si el usuario es administrador
+    const adminCheck = await requireAdmin();
+    if (!adminCheck.success) {
+      return NextResponse.json(
+        { success: false, error: adminCheck.error },
+        { status: 403 }
+      );
+    }
 
-  if (!tweak) return new NextResponse("Tweak not found", { status: 404 });
+    const tweak = await db.tweak.findUnique({
+      where: { id: params.tweakId }
+    });
 
-  const updatedTweak = await db.tweak.update({
-    where: {
-      id: tweakID,
-    },
-    data: {
-      isPublished: false,
-    },
-  });
+    if (!tweak) {
+      return NextResponse.json(
+        { success: false, error: "Tweak not found" },
+        { status: 404 }
+      );
+    }
 
-  return NextResponse.json(updatedTweak);
-};
+    const updatedTweak = await db.tweak.update({
+      where: { id: params.tweakId },
+      data: { isPublished: false }
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: updatedTweak
+    });
+  } catch (error) {
+    console.error("[TWEAK_UNPUBLISH]", error);
+    return NextResponse.json(
+      { success: false, error: "Internal Error" },
+      { status: 500 }
+    );
+  }
+}

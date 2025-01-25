@@ -4,10 +4,15 @@ import { routes } from "../_constants/routes";
 import Logo from "./Logo";
 import { cn } from "@/lib/utils";
 import NavbarItem from "./NavbarItem";
+import { useUser } from "@clerk/nextjs";
 
 export default function Navbar({ className }: { className?: string }) {
-  const topRoutes = routes.filter((route) => !route.isBottom);
-  const bottomRoutes = routes.filter((route) => route.isBottom);
+  const { user } = useUser();
+  const isAdmin = (user?.publicMetadata?.role as string)?.toLowerCase() === "admin";
+
+  const filteredRoutes = routes.filter(route => !route.requiresAdmin || (route.requiresAdmin && isAdmin));
+  const topRoutes = filteredRoutes.filter((route) => !route.isBottom);
+  const bottomRoutes = filteredRoutes.filter((route) => route.isBottom);
 
   return (
     <aside

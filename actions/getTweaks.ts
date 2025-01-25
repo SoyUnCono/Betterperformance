@@ -1,62 +1,94 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { Tweak } from "@prisma/client";
+import { Tweak, TweakType } from "@prisma/client";
 
 type GetTweaks = {
   title?: string;
   categoryId?: string;
-  createdAt?: string;
+  categoryName?: string;
   author?: string;
+  tweakType?: string;
+  minDownloads?: number;
+  orderBy?: string;
+  orderDirection?: "asc" | "desc";
 };
 
 export const getTweaks = async ({
   title,
   categoryId,
+  categoryName,
   author,
+  tweakType,
+  minDownloads,
+  orderBy = "updatedAt",
+  orderDirection = "desc",
 }: GetTweaks): Promise<Tweak[]> => {
-  const { userId } = auth();
-
   try {
-    let query: any = {
+    const whereConditions: any[] = [{ isPublished: true }];
+
+    if (title) {
+      whereConditions.push({
+        title: {
+          contains: title,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    if (categoryId) {
+      whereConditions.push({ categoryId });
+    }
+
+    if (categoryName) {
+      whereConditions.push({
+        category: {
+          name: {
+            contains: categoryName,
+            mode: "insensitive",
+          },
+        },
+      });
+    }
+
+    if (author) {
+      whereConditions.push({
+        authorProfile: {
+          username: {
+            contains: author,
+            mode: "insensitive",
+          },
+        },
+      });
+    }
+
+    if (tweakType) {
+      whereConditions.push({
+        tweak_type: tweakType as TweakType,
+      });
+    }
+
+    if (minDownloads) {
+      whereConditions.push({
+        downloadCount: {
+          gte: minDownloads,
+        },
+      });
+    }
+
+    const tweaks = await db.tweak.findMany({
       where: {
-        isPublished: true,
+        AND: whereConditions,
       },
       include: {
         category: true,
+        authorProfile: true,
       },
       orderBy: {
-        createdAt: "desc",
+        [orderBy]: orderDirection,
       },
-    };
+    });
 
-    if (
-      typeof title !== "undefined" ||
-      typeof categoryId !== "undefined" ||
-      typeof author !== "undefined"
-    ) {
-      query.where = {
-        AND: [
-          typeof title !== "undefined" && {
-            title: {
-              contains: title,
-              mode: "insensitive",
-            },
-          },
-          typeof author !== "undefined" && {
-            author: {
-              contains: author,
-              mode: "insensitive",
-            },
-          },
-          typeof categoryId !== "undefined" && {
-            categoryId: categoryId,
-          },
-        ].filter(Boolean),
-      };
-    }
-
-    const tweak = await db.tweak.findMany(query);
-    return tweak;
+    return tweaks;
   } catch (error) {
     console.log("[GET_TWEAKS]:", error);
     return [];

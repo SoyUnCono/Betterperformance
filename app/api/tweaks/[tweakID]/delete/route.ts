@@ -1,32 +1,76 @@
-import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
+import { Prisma, Tweak } from "@prisma/client";
 
-export const DELETE = async (
+interface ApiResponse {
+  success: boolean;
+  data?: Tweak;
+  error?: string;
+}
+
+export async function DELETE(
   req: Request,
-  { params }: { params: { tweakID: string } }
-) => {
+  { params }: { params: { tweakId: string } }
+): Promise<Response> {
   try {
+    console.log("[TWEAK_DELETE] Starting request");
     const { userId } = auth();
-    if (!userId) return new NextResponse("Unauthorized", { status: 401 });
+    console.log("[TWEAK_DELETE] UserId:", userId);
 
-    const { tweakID } = params;
+    if (!userId) {
+      return Response.json(
+        { success: false, error: "Unauthorized" } satisfies ApiResponse,
+        { status: 401 }
+      );
+    }
+
+    // Verificar si el usuario es administrador
+    console.log("[TWEAK_DELETE] Checking admin status");
+    const adminCheck = await requireAdmin();
+    console.log("[TWEAK_DELETE] Admin check result:", adminCheck);
+
+    if (!adminCheck.success) {
+      return Response.json(
+        { success: false, error: adminCheck.error } satisfies ApiResponse,
+        { status: 403 }
+      );
+    }
 
     const tweak = await db.tweak.findUnique({
-      where: { id: tweakID },
+      where: { id: params.tweakId }
     });
 
     if (!tweak) {
-      return new NextResponse("Tweak not found", { status: 404 });
+      return Response.json(
+        { success: false, error: "Tweak not found" } satisfies ApiResponse,
+        { status: 404 }
+      );
     }
 
     const deletedTweak = await db.tweak.delete({
-      where: { id: tweakID },
+      where: { id: params.tweakId }
     });
 
-    return NextResponse.json(deletedTweak);
+    console.log("[TWEAK_DELETE] Tweak deleted successfully:", deletedTweak);
+    return Response.json(
+      { success: true, data: deletedTweak } satisfies ApiResponse
+    );
   } catch (error) {
-    console.error("Error deleting tweak:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    if (error instanceof Error) {
+      console.error("[TWEAK_DELETE] Error details:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause
+      });
+    } else {
+      console.error("[TWEAK_DELETE] Unknown error:", error);
+    }
+
+    return Response.json(
+      { success: false, error: "Internal Error" } satisfies ApiResponse,
+      { status: 500 }
+    );
   }
-};
+}

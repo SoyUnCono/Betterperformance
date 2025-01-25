@@ -1,35 +1,49 @@
 import { NextResponse } from "next/server";
 import { TweakType } from "@prisma/client";
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
+import { requireAdmin } from "@/lib/auth";
 
-export const PATCH = async (
+export async function PATCH(
   req: Request,
-  { params }: { params: { tweakID: string } }
-) => {
+  { params }: { params: { tweakId: string } }
+) {
   try {
-    const { tweakID } = params;
+    const { userId } = auth();
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
+    }
+
+    // Verificar si el usuario es administrador
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
+    const { tweakId } = params;
     const tweakType = await req.text();
 
-    const validTypes = ["BATCH", "REGISTRY", "POWERSHELL", "VBSCRIPT"];
-    if (!validTypes.includes(tweakType.toUpperCase())) {
+    if (!tweakType || !Object.values(TweakType).includes(tweakType as TweakType)) {
       return NextResponse.json(
-        { error: "Tipo de tweak no válido" },
+        { error: "Invalid tweak type" },
         { status: 400 }
       );
     }
 
     const updatedTweak = await db.tweak.update({
-      where: { id: tweakID },
+      where: { id: tweakId },
       data: {
         tweak_type: tweakType as TweakType,
       },
     });
 
-    return NextResponse.json(updatedTweak, { status: 200 });
+    return NextResponse.json(updatedTweak);
   } catch (error) {
+    console.error("Error updating tweak type:", error);
     return NextResponse.json(
-      { error: "Error actualizando el tweak" },
+      { error: "Error updating tweak" },
       { status: 500 }
     );
   }
-};
+}
