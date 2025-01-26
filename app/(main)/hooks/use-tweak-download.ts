@@ -1,20 +1,27 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/use-toast";
+import { TweaksService } from "@/app/(main)/services/tweaks-service";
 
 interface UseTweakDownloadProps {
-  onDownload: () => Promise<void>;
+  tweakId: string;
+  onDownload?: () => Promise<void>;
 }
 
-export function useTweakDownload({ onDownload }: UseTweakDownloadProps) {
+export function useTweakDownload({
+  tweakId,
+  onDownload,
+}: UseTweakDownloadProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
-      await onDownload();
-      toast.success("Tweak descargado correctamente");
-    } catch (error) {
-      toast.error("Error al descargar el tweak");
+      const response = await TweaksService.incrementDownloadCount(tweakId);
+      if (response.success) {
+        if (onDownload) {
+          await onDownload();
+        }
+      }
     } finally {
       setIsDownloading(false);
     }

@@ -49,6 +49,10 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import CustomBreadCrump from "@/components/layout/custom-breadcrump";
+import { DeleteTweakButton } from "@/components/delete-tweak-button";
+import { PublishTweakButton } from "@/components/publish-tweak-button";
+import { DownloadTweakButton } from "@/components/download-tweak-button";
+import { FavoriteTweakButton } from "@/components/favorite-tweak-button";
 
 interface TweakHeaderProps {
   tweak: Tweak & {
@@ -179,18 +183,13 @@ export default function TweakHeader({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleHide}>
-          {tweak.isHidden ? (
-            <>
-              <Eye className="h-4 w-4 mr-2" />
-              Show Tweak
-            </>
-          ) : (
-            <>
-              <EyeOff className="h-4 w-4 mr-2" />
-              Hide Tweak
-            </>
-          )}
+        <DropdownMenuItem>
+          <PublishTweakButton
+            tweakID={tweak.id}
+            isPublished={!tweak.isHidden}
+            variant="ghost"
+            className="w-full justify-start px-0"
+          />
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => router.push(`/admin/tweaks/${tweak.id}`)}
@@ -199,32 +198,13 @@ export default function TweakHeader({
           Edit Tweak
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <DropdownMenuItem
-              onSelect={(e) => e.preventDefault()}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Tweak
-            </DropdownMenuItem>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                tweak.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete}>
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+          <DeleteTweakButton
+            tweakID={tweak.id}
+            variant="ghost"
+            className="w-full justify-start px-0 text-destructive"
+          />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -299,36 +279,19 @@ export default function TweakHeader({
 
               {/* Action Buttons */}
               <div className="flex gap-3">
-                <Button
+                <FavoriteTweakButton
+                  tweakID={tweak.id}
+                  isFavorited={isFavorited}
                   variant="outline"
                   className="flex-1"
-                  onClick={handleFavorite}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Heart
-                      className={cn(
-                        "h-4 w-4 mr-2",
-                        isFavorited && "fill-current"
-                      )}
-                    />
-                  )}
-                  {isFavorited ? "Favorited" : "Favorite"}
-                </Button>
-                <Button
+                  showLabel
+                />
+                <DownloadTweakButton
+                  tweakID={tweak.id}
+                  variant="default"
                   className="flex-1 bg-primary"
-                  onClick={handleDownload}
-                  disabled={isDownloading}
-                >
-                  {isDownloading ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4 mr-2" />
-                  )}
-                  Download
-                </Button>
+                  showLabel
+                />
               </div>
 
               {/* Additional Info */}
@@ -341,7 +304,8 @@ export default function TweakHeader({
                         tweak.authorProfile?.customTheme &&
                         typeof tweak.authorProfile.customTheme === "object" &&
                         "avatarUrl" in tweak.authorProfile.customTheme &&
-                        typeof tweak.authorProfile.customTheme.avatarUrl === "string"
+                        typeof tweak.authorProfile.customTheme.avatarUrl ===
+                          "string"
                           ? tweak.authorProfile.customTheme.avatarUrl
                           : "/placeholder-avatar.svg"
                       }
@@ -464,37 +428,19 @@ export default function TweakHeader({
 
                 <div className="flex items-center gap-3">
                   {isAdmin && <AdminActions />}
-                  <Button
+                  <FavoriteTweakButton
+                    tweakID={tweak.id}
+                    isFavorited={isFavorited}
                     variant="outline"
                     size="sm"
-                    onClick={handleFavorite}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Heart
-                        className={cn(
-                          "h-4 w-4 mr-2",
-                          isFavorited && "fill-current"
-                        )}
-                      />
-                    )}
-                    {isFavorited ? "Favorited" : "Favorite"}
-                  </Button>
-                  <Button
+                    showLabel
+                  />
+                  <DownloadTweakButton
+                    tweakID={tweak.id}
                     size="sm"
                     className="bg-primary"
-                    onClick={handleDownload}
-                    disabled={isDownloading}
-                  >
-                    {isDownloading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Download className="h-4 w-4 mr-2" />
-                    )}
-                    Download
-                  </Button>
+                    showLabel
+                  />
                 </div>
               </div>
             </div>

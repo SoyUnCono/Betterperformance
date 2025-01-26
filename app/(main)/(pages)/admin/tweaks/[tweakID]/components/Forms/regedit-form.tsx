@@ -26,6 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AlertCircle, FileCode2, Loader2, Save, Trash2 } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Textarea } from "@/components/ui/textarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RegeditEditorProps {
   tweakID: string;
@@ -36,9 +44,23 @@ interface RegeditEditorProps {
   className?: string;
 }
 
-const formScheme = z.object({
-  regedit: z.string().min(1),
+const formSchema = z.object({
+  regedit: z
+    .string()
+    .min(10, "Registry script must be at least 10 characters")
+    .max(10000, "Registry script cannot exceed 10000 characters"),
 });
+
+const LineNumbers = ({ content }: { content: string }) => {
+  const lines = content.split("\n").length;
+  return (
+    <div className="select-none pr-4 text-right text-sm text-muted-foreground/40 font-mono">
+      {Array.from({ length: lines }, (_, i) => (
+        <div key={i + 1}>{i + 1}</div>
+      ))}
+    </div>
+  );
+};
 
 export default function RegeditEditorForm({
   tweakID,
@@ -50,8 +72,8 @@ export default function RegeditEditorForm({
 
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formScheme>>({
-    resolver: zodResolver(formScheme),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       regedit: initialData?.regedit || "",
     },
@@ -59,81 +81,172 @@ export default function RegeditEditorForm({
 
   const { isSubmitting, isValid } = form.formState;
 
-  const onSubmit = async (values: z.infer<typeof formScheme>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await TweaksService.updateTweak(tweakID, values)
       .then(() => {
         toggleEditing();
-        toast.success("Regedit was updated successfully");
+        toast.success("Registry script updated successfully!");
       })
-      .catch((error) =>
-        toast.error(error instanceof Error ? error.message : "Unknown error")
-      )
+      .catch((error) => {
+        toast.error(
+          `Failed to update registry script: ${error instanceof Error ? error.message : "Unknown error"}`
+        );
+      })
       .finally(() => router.refresh());
   };
 
-  const toggleEditing = () => setIsEditing((prev) => !prev);
+  const toggleEditing = () => {
+    if (!isEditing) {
+      form.reset({
+        regedit: initialData?.regedit || "",
+      });
+    }
+    setIsEditing((current) => !current);
+  };
+
+  const handleClear = () => {
+    form.setValue("regedit", "", { shouldValidate: true });
+  };
+
+  const currentLength = form.watch("regedit")?.length || 0;
+  const maxLength = 10000;
 
   return (
-    <div
-      className={cn(
-        "mt-2 flex flex-col border bg-secondary/30 rounded-md  pt-4 h-[40rem]  mb-2 ",
-        className
-      )}
-    >
-      <div className="font-medium flex items-center justify-between bg-transparent px-4">
-        <div className="flex flex-col gap-y">
-          <h1 className=" text-muted-foreground/90 ml-2 text-pretty text-center ">
-            BetterPerformance Tweak Editor
-          </h1>
-          <p className="text-xs text-muted-foreground/40 ml-2 text-pretty ">
-            version 1.0.0 Alpha
-          </p>
+    <div className="relative space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-x-2">
+          <div className="rounded-md bg-primary/10 p-2 text-primary">
+            <FileCode2 className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-x-2">
+              <h3 className="font-medium">Registry Script</h3>
+              <HoverCard openDelay={200}>
+                <HoverCardTrigger asChild>
+                  <AlertCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                </HoverCardTrigger>
+                <HoverCardContent align="start" className="w-[360px] text-sm">
+                  <ul className="space-y-2">
+                    <li>• Include clear registry paths</li>
+                    <li>• Use proper format (REG_SZ, REG_DWORD, etc.)</li>
+                    <li>• Make sure to include backup keys</li>
+                    <li>• Test the script before submitting</li>
+                    <li>
+                      • Header will be added automatically when downloading
+                    </li>
+                  </ul>
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+            {!initialData.regedit && (
+              <p className="text-[0.65rem] text-muted-foreground pt-1">
+                Required field
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex gap-x-1">
-          <Button onClick={toggleEditing} variant={"outline"}>
-            {isEditing ? "Cancel" : <Pencil className="h-4 w-4" />}
+        {!isEditing && (
+          <Button
+            onClick={toggleEditing}
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0"
+          >
+            <Pencil className="h-4 w-4" />
           </Button>
-        </div>
+        )}
       </div>
 
-      <Form {...form}>
-        <form
-          className={cn("space-y-4 mt-4 max-h-[34.3rem]", isEditing && "p-4")}
-          onSubmit={form.handleSubmit(onSubmit)}
-        >
-          <FormField
-            control={form.control}
-            name="regedit"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <>
-                    <LineNumberedTextarea
-                      value={field.value}
-                      onChange={field.onChange}
-                      isEditing={isEditing}
-                    />
-                    {isEditing && (
-                      <LoadingButton
-                        type="submit"
-                        className="absolute bottom-20 right-5"
-                        isSubmitting={isSubmitting}
-                        isValid={isValid}
-                      />
-                    )}
-                  </>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </form>
-      </Form>
+      {!isEditing && (
+        <div className="rounded-lg bg-muted/40 p-4">
+          <ScrollArea className="h-[300px] w-full">
+            <div className="flex">
+              <LineNumbers content={initialData.regedit || ""} />
+              <pre className="text-sm whitespace-pre-wrap break-words flex-1">
+                {initialData.regedit || "No registry script added"}
+              </pre>
+            </div>
+          </ScrollArea>
+        </div>
+      )}
 
-      {!isEditing && !initialData.regedit && (
-        <p className="text-sm text-muted-foreground overflow-clip p-4">
-          There's nothing to show here...
-        </p>
+      {isEditing && (
+        <div className="rounded-lg border bg-muted/40 p-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="regedit"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex flex-col gap-y-2">
+                        <div className="relative">
+                          <ScrollArea className="h-[300px] w-full rounded-md border">
+                            <div className="flex">
+                              <LineNumbers content={field.value} />
+                              <div className="flex-1 relative">
+                                <Textarea
+                                  {...field}
+                                  disabled={isSubmitting}
+                                  placeholder="[HKEY_CURRENT_USER\...]&#10;&#10;@=dword:00000000"
+                                  className="h-full min-h-[300px] resize-none font-mono text-sm border-0"
+                                  style={{
+                                    paddingLeft: "0.5rem",
+                                  }}
+                                />
+                                <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
+                                  {currentLength}/{maxLength}
+                                </div>
+                              </div>
+                            </div>
+                          </ScrollArea>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-x-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleClear}
+                              disabled={!field.value || isSubmitting}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Clear
+                            </Button>
+                          </div>
+                          <div className="flex items-center gap-x-2">
+                            <Button
+                              disabled={!isValid || isSubmitting}
+                              type="submit"
+                              size="sm"
+                            >
+                              {isSubmitting ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Save className="h-4 w-4 mr-2" />
+                              )}
+                              Save changes
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={toggleEditing}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </div>
       )}
     </div>
   );

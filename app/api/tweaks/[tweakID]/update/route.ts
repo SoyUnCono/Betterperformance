@@ -27,7 +27,7 @@ type UpdateTweakInput = z.infer<typeof updateTweakSchema>;
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { tweakId: string } }
+  { params }: { params: { tweakID: string } }
 ): Promise<Response> {
   try {
     console.log("[TWEAK_UPDATE] Starting request");
@@ -72,11 +72,11 @@ export async function PATCH(
 
     // Check if tweak exists
     const existingTweak = await db.tweak.findUnique({
-      where: { id: params.tweakId }
+      where: { id: params.tweakID },
     });
 
     if (!existingTweak) {
-      console.log("[TWEAK_UPDATE] Tweak not found:", params.tweakId);
+      console.log("[TWEAK_UPDATE] Tweak not found:", params.tweakID);
       return Response.json(
         { success: false, error: "Tweak not found" } satisfies ApiResponse,
         { status: 404 }
@@ -84,12 +84,15 @@ export async function PATCH(
     }
 
     // Check for duplicate title if title is being updated
-    if (validationResult.data.title && validationResult.data.title !== existingTweak.title) {
+    if (
+      validationResult.data.title &&
+      validationResult.data.title !== existingTweak.title
+    ) {
       const duplicateTweak = await db.tweak.findFirst({
         where: {
           title: validationResult.data.title,
-          NOT: { id: params.tweakId }
-        }
+          NOT: { id: params.tweakID },
+        },
       });
 
       if (duplicateTweak) {
@@ -104,23 +107,27 @@ export async function PATCH(
       }
     }
 
-    console.log("[TWEAK_UPDATE] Updating tweak with data:", validationResult.data);
+    console.log(
+      "[TWEAK_UPDATE] Updating tweak with data:",
+      validationResult.data
+    );
     const updatedTweak = await db.tweak.update({
-      where: { id: params.tweakId },
-      data: validationResult.data
+      where: { id: params.tweakID },
+      data: validationResult.data,
     });
 
     console.log("[TWEAK_UPDATE] Tweak updated successfully:", updatedTweak);
-    return Response.json(
-      { success: true, data: updatedTweak } satisfies ApiResponse
-    );
+    return Response.json({
+      success: true,
+      data: updatedTweak,
+    } satisfies ApiResponse);
   } catch (error) {
     if (error instanceof Error) {
       console.error("[TWEAK_UPDATE] Error details:", {
         name: error.name,
         message: error.message,
         stack: error.stack,
-        cause: error.cause
+        cause: error.cause,
       });
     } else {
       console.error("[TWEAK_UPDATE] Unknown error:", error);

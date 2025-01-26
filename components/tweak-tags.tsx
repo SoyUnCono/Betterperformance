@@ -5,10 +5,11 @@ import { TweakType } from "@prisma/client";
 import { FileCode, Settings, Terminal, FileText } from "lucide-react";
 
 interface TweakTagsProps {
-  tweakType?: TweakType | null;
+  categoryName: string;
+  tweakType: TweakType | null;
 }
 
-const TweakTags = ({ tweakType }: TweakTagsProps) => {
+const TweakTags = ({ categoryName, tweakType }: TweakTagsProps) => {
   const getTypeIcon = () => {
     switch (tweakType) {
       case "Batch":
@@ -28,11 +29,15 @@ const TweakTags = ({ tweakType }: TweakTagsProps) => {
 
   return (
     <div className="flex items-center gap-2">
+      {categoryName && (
+        <Badge variant="outline" className="text-[10px]">
+          {categoryName}
+        </Badge>
+      )}
       {tweakType && (
-        <div className="text-xs flex items-center gap-1 bg-secondary px-2 py-1 rounded-md">
-          <TypeIcon className="h-3 w-3" />
+        <Badge variant="secondary" className="text-[10px]">
           {tweakType}
-        </div>
+        </Badge>
       )}
     </div>
   );

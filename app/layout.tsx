@@ -28,7 +28,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
-          className={cn("min-h-screen font-sans antialiased", poppins.variable)}
+          className={cn("min-h-screen", poppins.variable)}
         >
           <ThemeProvider
             attribute="class"
@@ -36,7 +36,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SparklesBackground sparkleCount={20} minSize={1} maxSize={4} />
+            <SparklesBackground sparkleCount={20} minSize={1} maxSize={9} />
             {children}
             <Toaster />
           </ThemeProvider>

@@ -10,13 +10,15 @@ export default function Logo({ className }: { className?: string }) {
         className
       )}
     >
-      <Image
-        className="transition-all items-center justify-center group-hover:scale-110 w-8 h-8"
-        width={600}
-        height={600}
-        alt="Application logo"
-        src={"/Betterperformance-Logo.png"}
-      />
+      <div className="transform scale-x-[-1] transition-all duration-300">
+        <Image
+          className="w-8 h-8 transition-all duration-300 group-hover:translate-x-1 group-hover:[transform:scale(1.1)] group-hover:brightness-125"
+          width={600}
+          height={600}
+          alt="Application logo"
+          src={"/Betterperformance-Logo.png"}
+        />
+      </div>
       <span className="sr-only">BetterPerformance</span>
     </div>
   );

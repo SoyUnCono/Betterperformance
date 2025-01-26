@@ -1,23 +1,44 @@
 import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { Tweak } from "@prisma/client";
 
-export const PATCH = async (
+interface ApiResponse {
+  success: boolean;
+  data?: Tweak;
+  error?: string;
+}
+
+export async function PATCH(
   req: Request,
-  { params }: { params: { tweakId: string } }
-) => {
+  { params }: { params: { tweakID: string } }
+): Promise<Response> {
   try {
     const { userId } = auth();
-    if (!userId) return new NextResponse("UserID not found", { status: 404 });
+    if (!userId) {
+      return Response.json(
+        { success: false, error: "Unauthorized" } satisfies ApiResponse,
+        { status: 401 }
+      );
+    }
 
-    const { tweakId } = params;
-    if (!tweakId) return new NextResponse("TweakId not found", { status: 404 });
+    if (!params.tweakID) {
+      return Response.json(
+        { success: false, error: "TweakID not found" } satisfies ApiResponse,
+        { status: 404 }
+      );
+    }
 
     const tweak = await db.tweak.findUnique({
-      where: { id: tweakId },
+      where: { id: params.tweakID },
     });
 
-    if (!tweak) return new NextResponse("Tweak not found", { status: 404 });
+    if (!tweak) {
+      return Response.json(
+        { success: false, error: "Tweak not found" } satisfies ApiResponse,
+        { status: 404 }
+      );
+    }
 
     const isSavedByUser = tweak.savedUsers.includes(userId);
     const updatedSavedUsers = isSavedByUser
@@ -25,20 +46,21 @@ export const PATCH = async (
       : [...tweak.savedUsers, userId];
 
     const updatedTweak = await db.tweak.update({
-      where: { id: tweakId },
+      where: { id: params.tweakID },
       data: {
         savedUsers: updatedSavedUsers,
       },
     });
 
-    const responseTweak = {
-      id: updatedTweak.id,
-      savedUsers: updatedTweak.savedUsers,
-    };
-
-    return NextResponse.json(responseTweak);
+    return Response.json({
+      success: true,
+      data: updatedTweak,
+    } satisfies ApiResponse);
   } catch (error) {
     console.error("Error toggling save state for tweak:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return Response.json(
+      { success: false, error: "Internal Server Error" } satisfies ApiResponse,
+      { status: 500 }
+    );
   }
-};
+}

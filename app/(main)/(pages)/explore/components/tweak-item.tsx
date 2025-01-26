@@ -22,6 +22,8 @@ import { useRouter } from "next/navigation";
 import { TweaksService } from "@/app/(main)/services/tweaks-service";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { FavoriteTweakButton } from "@/components/favorite-tweak-button";
+import { DownloadTweakButton } from "@/components/download-tweak-button";
 
 interface TweakItemProps {
   tweak: Tweak & {
@@ -169,8 +171,8 @@ export default function TweakItem({
   };
 
   return (
-    <div className="group">
-      <Card className="border border-border transition-all bg-background duration-200 ">
+    <div>
+      <Card className="border border-border transition-all bg-background duration-200">
         <div className="p-3">
           {/* Header Section */}
           <div className="flex items-start gap-3">
@@ -194,9 +196,9 @@ export default function TweakItem({
                       {tweak.title}
                     </h3>
                   </Link>
-                  <div className="flex gap-1  m-0.5">
+                  <div className="flex gap-1 m-0.5">
                     <TweakTags
-                      categoryName={categoryName}
+                      categoryName={categoryName || ""}
                       tweakType={tweakType}
                     />
                   </div>
@@ -261,38 +263,20 @@ export default function TweakItem({
               </div>
             </Link>
             <div className="flex items-center gap-1.5">
-              <Button
+              <FavoriteTweakButton
+                tweakID={tweakID}
+                isFavorited={isFavorited}
                 variant="outline"
                 size="icon"
-                className={cn(
-                  "h-7 w-7 transition-colors hover:text-red-700 hover:bg-background hover:border-red-700",
-                  isFavorited && "text-red-500"
-                )}
-                onClick={handleFavorite}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Heart
-                    className={cn("h-3.5 w-3.5", isFavorited && "fill-current")}
-                  />
-                )}
-              </Button>
-              <Button
+                className="h-7 w-7 transition-colors hover:text-red-700 hover:bg-background hover:border-red-700"
+              />
+              <DownloadTweakButton
+                tweakID={tweakID}
                 variant="outline"
                 size="sm"
                 className="h-7 px-2.5 text-xs border-border"
-                onClick={handleDownload}
-                disabled={isDownloading}
-              >
-                {isDownloading ? (
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                ) : (
-                  <Download className="h-3 w-3 mr-1" />
-                )}
-                Download
-              </Button>
+                showLabel
+              />
             </div>
           </div>
         </div>

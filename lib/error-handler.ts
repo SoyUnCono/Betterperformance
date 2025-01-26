@@ -19,7 +19,7 @@ class AppError extends Error {
 
 export function handleError(
   error: unknown,
-  fallbackMessage = "Ha ocurrido un error"
+  fallbackMessage = "An error has occurred"
 ) {
   console.error("Error:", error);
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tweak } from "@prisma/client";
-import toast from "react-hot-toast";
+import { toast } from "@/components/ui/use-toast";
 import { TweaksService } from "@/app/(main)/services/tweaks-service";
 
 interface UseFavoriteProps {
@@ -20,12 +20,21 @@ export function useFavorite({ userId, tweakId, tweak }: UseFavoriteProps) {
   }, [userId, tweak.savedUsers]);
 
   const toggleFavorite = async () => {
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save tweaks",
+        variant: "error",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      await TweaksService.toggleSaveTweak(tweakId);
-      setIsSaved(!isSaved);
-    } catch (error) {
-      toast.error("Error al guardar el tweak");
+      const response = await TweaksService.toggleSaveTweak(tweakId);
+      if (response.success) {
+        setIsSaved(!isSaved);
+      }
     } finally {
       setIsLoading(false);
       router.refresh();
