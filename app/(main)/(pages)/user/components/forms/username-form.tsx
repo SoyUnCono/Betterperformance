@@ -1,7 +1,7 @@
 "use client";
 
 import { UserService } from "@/app/(main)/services/user-service";
-import { LoadingButton } from "@/components/LoadingButton";
+import { LoadingButton } from "@/components/common/loading-button";
 import { Button } from "@/components/ui/button";
 import {
   Form,

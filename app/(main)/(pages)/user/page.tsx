@@ -1,12 +1,9 @@
-import Box from "@/components/box";
-import CustomBreadCrump from "@/components/CustomBreadCrump";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import dynamic from "next/dynamic";
 import { UsernameForm } from "./components/forms/username-form";
 import { db } from "@/lib/db";
 import { EmailForm } from "./components/forms/email-form";
-import { LogoutButton } from "@/components/LogoutButton";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +25,8 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { SignOutButton } from "@clerk/nextjs";
+import CustomBreadCrump from "@/components/layout/custom-breadcrump";
+import { LogoutButton } from "@/components/logout-button";
 
 const ProfilePicture = dynamic(
   () => import("./components/profile-picture").then((mod) => mod.default),

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HeartIcon, Loader2 } from "lucide-react";
 import { Tweak } from "@prisma/client";
-import { useFavorite } from "../../../hooks/use-favorite";
+import { useFavorite } from "../../../app/(main)/hooks/use-favorite";
 
 interface ToggleFavoriteButtonProps {
   userId: string | null;

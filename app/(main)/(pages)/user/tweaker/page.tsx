@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import CustomBreadCrump from "@/components/CustomBreadCrump";
+import CustomBreadCrump from "@/components/layout/custom-breadcrump";
 import { TweakerProfileForm } from "../components/tweaker-profile";
 
 export default async function TweakerProfilePage() {

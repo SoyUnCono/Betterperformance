@@ -170,7 +170,7 @@ export default function TweakItem({
 
   return (
     <div className="group">
-      <Card className="border border-border transition-all bg-secondary duration-200 hover:border-primary/20 hover:bg-secondary/[0.70]">
+      <Card className="border border-border transition-all bg-background duration-200 ">
         <div className="p-3">
           {/* Header Section */}
           <div className="flex items-start gap-3">
@@ -194,7 +194,7 @@ export default function TweakItem({
                       {tweak.title}
                     </h3>
                   </Link>
-                  <div className="flex gap-1 flex-wrap mt-0.5">
+                  <div className="flex gap-1  m-0.5">
                     <TweakTags
                       categoryName={categoryName}
                       tweakType={tweakType}
@@ -262,11 +262,11 @@ export default function TweakItem({
             </Link>
             <div className="flex items-center gap-1.5">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 className={cn(
-                  "h-7 w-7 transition-colors",
-                  isFavorited && "text-primary hover:text-primary/80"
+                  "h-7 w-7 transition-colors hover:text-red-700 hover:bg-background hover:border-red-700",
+                  isFavorited && "text-red-500"
                 )}
                 onClick={handleFavorite}
                 disabled={isLoading}
@@ -282,7 +282,7 @@ export default function TweakItem({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2.5 text-xs border-primary/20 hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
+                className="h-7 px-2.5 text-xs border-border"
                 onClick={handleDownload}
                 disabled={isDownloading}
               >

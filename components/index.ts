@@ -6,7 +6,7 @@ export * from "./common/loading-spinner";
 export * from "./common/loading-button";
 
 // Layout Components
-export * from "./layout/custom-breadcrumb";
+// export * from "./layout/custom-breadcrumb";
 
 // UI Components
 export * from "./ui/banner";

@@ -4,11 +4,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import TweaksPublishActions from "./components/tweak-publish-actions";
 import { Banner } from "@/components/banner";
-import TitleForm from "./components/Forms/title-form";
-import DescriptionForm from "./components/Forms/description-form";
-import CategoryForm from "./components/Forms/category-form";
-import RegeditEditorForm from "./components/Forms/regedit-form";
-import RegeditTypeForm from "./components/Forms/regedit-type-form";
+import TitleForm from "./components/forms/title-form";
+import DescriptionForm from "./components/forms/description-form";
+import CategoryForm from "./components/forms/category-form";
+import RegeditEditorForm from "./components/forms/regedit-form";
+import RegeditTypeForm from "./components/forms/regedit-type-form";
 import {
   Tooltip,
   TooltipContent,

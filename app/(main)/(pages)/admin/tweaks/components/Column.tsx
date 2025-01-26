@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ColumnDef, RowExpanding } from "@tanstack/react-table";
 import { ArrowUpDown, ImageOffIcon } from "lucide-react";
-import { ColumnMenu } from "./ColumnMenu";
+import { ColumnMenu } from "./column-menu";
 import Image from "next/image";
 
 export type TweaksColumn = {

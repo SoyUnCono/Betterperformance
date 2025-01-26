@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/ui/data-table";
-import { columns, TweaksColumn } from "./tweaks/components/Column";
+import { columns, TweaksColumn } from "./tweaks/components/column";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
