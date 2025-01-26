@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ThemeProvider } from "@/app/providers/theme-provider";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { SparklesBackground } from "@/animations";
 
 const poppins = Poppins({
-  weight: ['400', '500', '600', '700'],
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-poppins",
 });
@@ -27,10 +28,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            poppins.variable
-          )}
+          className={cn("min-h-screen font-sans antialiased", poppins.variable)}
         >
           <ThemeProvider
             attribute="class"
@@ -38,6 +36,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <SparklesBackground sparkleCount={20} minSize={1} maxSize={4} />
             {children}
             <Toaster />
           </ThemeProvider>
